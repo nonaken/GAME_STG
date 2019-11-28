@@ -18,13 +18,13 @@ int ENEMY_Size_W, ENEMY_Size_H;
 class ENEMY
 {
 private:
-	//ENEMY *e[ENEMY_NUM];
+
 	int ENEMY_HP;
 	int ENEMY_Speed;
 	
 public:
 	
-	int ENEMY_X;
+	int ENEMY_X = WINDOW_WIDTH_RANDOM_ENEMY_X();
 	int ENEMY_Y;
 	int WINDOW_WIDTH_RANDOM_ENEMY_X();
 	int RANDOM();
@@ -34,17 +34,15 @@ public:
 	int Get_ENEMY_Y();
 	int Get_ENEMY_X();
 	void ENEMY_DRAW();
-	void ENEMY_SPAWN();
 	void ENEMY_RESET();
 	int RANDOM_soeji = RANDOM();
-	int i;
 
 	//ENEMY();
 	//~ENEMY();
 
 
 };
-//
+
 //ENEMY::ENEMY()
 //{
 //	for (int num = 0; num < ENEMY_NUM; num++)
@@ -83,7 +81,6 @@ int ENEMY::WINDOW_WIDTH_RANDOM_ENEMY_X()
 
 	std::mt19937 mt(rd());
 
-	//ENEMY_RANDOM_X_DROW = true;
 	//1`‰æ–ÊƒTƒCƒY‚Ì‰¡•‚Ü‚Å‚ð—”‚ÅŒˆ‚ß‚é
 	std::uniform_int_distribution<int> WINDOW_WIDTH_RANDOM_ENEMY_X(0, GAME_WIDTH - ENEMY_Size_W / ENEMY_BUNKATU_X);
 

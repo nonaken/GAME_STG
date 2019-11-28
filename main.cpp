@@ -35,12 +35,10 @@ void GAME_END_DRAW();	//エンド画面を描画
 
 
 
-FPS *fps = new FPS(GAME_FPS_SPEED);							//FPSクラスのオブジェクトを生成
-PLAYER *p = new PLAYER();
-ENEMY *e = new ENEMY();
+FPS *fps = new FPS(GAME_FPS_SPEED);		//FPSクラスのオブジェクトを生成
+PLAYER *p = new PLAYER();				//プレイヤーのオブジェクトを生成する
+ENEMY *e[3];							//エネミークラスを３つ生成する
 
-
-int cnt = 0;
 
 
 
@@ -57,9 +55,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	}
 
 	SetDrawScreen(DX_SCREEN_BACK);	//描画を裏画面に設定
-
-
-
 	
 
 	PLAYER_Size = LoadGraph(GAME_PLAYER);			//キャラ画像　の縦と横のサイズを取得するためロードする(すぐに捨てる)
@@ -78,7 +73,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	DeleteGraph(ENEMY_Size);//キャラ画像　の縦と横のサイズを取得したら、使い捨て
 
-	LoadDivGraph(GAME_ENEMY, ENEMY_BUNKATU, ENEMY_BUNKATU_X, ENEMY_BUNKATU_Y, ENEMY_Size_W / ENEMY_BUNKATU_X, ENEMY_Size_H / ENEMY_BUNKATU_Y, &e->ENEMY_Handle[0]);
+	for (int num = 0; num < 3; num++)
+	{
+		e[num] = new ENEMY();
+		LoadDivGraph(GAME_ENEMY, ENEMY_BUNKATU, ENEMY_BUNKATU_X, ENEMY_BUNKATU_Y, ENEMY_Size_W / ENEMY_BUNKATU_X, ENEMY_Size_H / ENEMY_BUNKATU_Y, &e[num]->ENEMY_Handle[0]);
+	}
 
 	//タイトル画面の背景の画像を読み込む
 	int imgBack_Title = LoadGraph(GAME_BackImage_TITLE);		//タイトル背景画像を読み込む(*注意：while文で読み込むとFPSが低下する[毎回読み込んでしまうため])
@@ -112,13 +111,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			//タイトルロゴの画像を描画する
 			DrawExtendGraph(GAME_TITLE_LOG_UPPERLEFT_X, GAME_TITLE_LOG_UPPERLEFT_Y, GAME_TITLE_LOG_BOTTOMLEFT_X, GAME_TITLE_LOG_BOTTOMLEFT_Y, imgTitle_log, true);
 			
-
 			GAME_TITLE_DRAW();	//タイトル画面を描画
 
-
-
 			p->PLAYER_RESET();	//プレイヤーを初期位置へ
-		
 	
 			break;
 
@@ -126,13 +121,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 			DrawExtendGraph(0, 0, GAME_WIDTH, GAME_HEIGHT, imgBack_Play, false);
 			GAME_PLAY_DRAW();	//プレイ画面を描画
-			
 			p->PLAYER_DRAW();	//プレイヤーの描画処理
-			//e->ENEMY_SPAWN();	//複数のオブジェクト生成する
-			e->ENEMY_DRAW();	//エネミーの描画処理
-			p->PLAYER_COLLISION_ENEMY(e->ENEMY_X, e->ENEMY_Y);	//プレイヤーとエネミーの衝突判定
+
+			for (int num = 0; num < 3; num++)
+			{
+				p->PLAYER_COLLISION_ENEMY(e[num]->ENEMY_X, e[num]->ENEMY_Y);	//プレイヤーとエネミーの衝突判定
+
+				e[num]->ENEMY_DRAW();	//エネミーの描画処理
+			}
 			
-			e->ENEMY_SPAWN();
 			
 			break;
 
@@ -154,8 +151,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	delete fps;
 	delete p;
-	delete e;
-	
+
+	for (int num = 0; num < 3; num++)
+	{
+		delete e[num];
+	}
 	DxLib_End();			//ＤＸライブラリ使用の終了処理
 
 	return 0;				// ソフトの終了 
@@ -215,7 +215,10 @@ void PLAYER::PLAYER_COLLISION_ENEMY(int ENEMY_X, int ENEMY_Y)
 		((PLAYER_Y > ENEMY_Y && PLAYER_Y < ENEMY_Y + ENEMY_Size_H / ENEMY_BUNKATU_Y) ||
 		(ENEMY_Y > PLAYER_Y && ENEMY_Y < PLAYER_Y + PLAYER_Size_H / PLAYER_BUNKATU_Y)))
 	{
-		e->ENEMY_RESET();
+		for (int num = 0; num < 3; num++)
+		{
+			e[num]->ENEMY_RESET();
+		}
 		PLAYER_HP -=1;
 		//screen_state = GAME_END;		//エンド画面へ遷移する
 	}
@@ -224,15 +227,10 @@ void PLAYER::PLAYER_COLLISION_ENEMY(int ENEMY_X, int ENEMY_Y)
 
 	if (PLAYER_HP <= 0)
 	{
-		e->ENEMY_RESET();
+		for (int num = 0; num < 3; num++)
+		{
+			e[num]->ENEMY_RESET();
+		}
 		screen_state = GAME_END;		//エンド画面へ遷移する
-	}
-}
-
-void ENEMY::ENEMY_SPAWN()
-{
-	if (fps->flameCount <= 60)
-	{
-
 	}
 }
