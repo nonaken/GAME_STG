@@ -145,9 +145,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ENEMY.cpp" />
     <ClCompile Include="FPS.cpp" />
     <ClCompile Include="Keyboard_Get.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="PLAYER.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PLAYER.h" />
