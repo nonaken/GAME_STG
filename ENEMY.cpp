@@ -1,6 +1,5 @@
-#pragma once
 #include "DxLib.h"
-#include "window_size.h"
+#include "WINDOW_SIZE.h"
 #include <random>
 #include "ENEMY.h"
 

@@ -2,18 +2,19 @@
 #include "Keyboard_Get.h"
 #include "PLAYER.h"
 #include "ENEMY.h"
-#include "window_size.h"
+#include "WEAPON.h"
+#include "WINDOW_SIZE.h"
 #include "FPS.h"
 
 #define GAME_BackImage_TITLE	"BackImage\\kaidou0331_800b.jpg"	//タイトル画面背景画像
 #define GAME_TITLE_LOG			"BackImage\\game_title_font.png"	//タイトルロゴ
 #define GAME_BackImage_PLAY		"BackImage\\pipo-battlebg001b.jpg"	//プレイ画面背景画像
-#define GAME_BackImage_END		"BackImage\\end_2.jpg"	//エンド画面背景画像
+#define GAME_BackImage_END		"BackImage\\end_2.jpg"				//エンド画面背景画像
 
 #define GAME_FPS_SPEED		60			//FPSを設定
 
-#define GAME_TITLE_LOG_UPPERLEFT_X		GAME_WIDTH / 4		//タイトルロゴ画像の左上X座標
-#define GAME_TITLE_LOG_UPPERLEFT_Y		GAME_HEIGHT / 3		//タイトルロゴ画像の左上Y座標
+#define GAME_TITLE_LOG_UPPERLEFT_X		GAME_WIDTH / 4					//タイトルロゴ画像の左上X座標
+#define GAME_TITLE_LOG_UPPERLEFT_Y		GAME_HEIGHT / 3					//タイトルロゴ画像の左上Y座標
 #define GAME_TITLE_LOG_BOTTOMLEFT_X		GAME_WIDTH - GAME_WIDTH / 4		//タイトルロゴ画像の右下X座標
 #define GAME_TITLE_LOG_BOTTOMLEFT_Y		GAME_HEIGHT - GAME_HEIGHT / 3	//タイトルロゴ画像の右下Y座標
 
@@ -36,13 +37,16 @@ void GAME_END_DRAW();	//エンド画面を描画
 
 FPS *fps = new FPS(GAME_FPS_SPEED);		//FPSクラスのオブジェクトを生成
 PLAYER *p = new PLAYER();				//プレイヤーのオブジェクトを生成する
+WEAPON *w = new WEAPON();				//ウエポンのオブジェクトを生成する
+//WEAPON *w[WEAPON_NUM];				//ウエポンクラスを５つ生成する
 ENEMY *e[ENEMY_NUM];					//エネミークラスを３つ生成する
 
 extern int PLAYER_Size;						//プレイヤー画像のサイズをLoadDivGrahpで取得するため(PLAYER.cppでも同じ変数を利用するため、externを使用している)
 extern int PLAYER_Size_W, PLAYER_Size_H;	//プレイヤー画像の横サイズ、縦サイズを取得			(PLAYER.cppでも同じ変数を利用するため、externを使用している)
 extern int ENEMY_Size;						//エネミー画像のサイズをLoadDivGrahpで取得するため	(ENEMY.cppでも同じ変数を利用するため、externを使用している)
 extern int ENEMY_Size_W, ENEMY_Size_H;		//エネミー画像の横サイズ、縦サイズを取得			(ENEMY.cppでも同じ変数を利用するため、externを使用している)
-
+extern int WEAPON_Size;						//ウエポン画像のサイズをLoadDivGrahpで取得するため	(ENEMY.cppでも同じ変数を利用するため、externを使用している)
+extern int WEAPON_Size_W, WEAPON_Size_H;	//エネミー画像の横サイズ、縦サイズを取得			(ENEMY.cppでも同じ変数を利用するため、externを使用している)
 
 // プログラムは WinMain から始まります
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
@@ -64,8 +68,29 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	DeleteGraph(PLAYER_Size);				//プレイヤー画像の縦と横のサイズを取得したら、使い捨て
 
+	//プレイヤー画像を指定した分割数、サイズで読み込む
 	LoadDivGraph(GAME_PLAYER, PLAYER_BUNKATU, PLAYER_BUNKATU_X, PLAYER_BUNKATU_Y, PLAYER_Size_W / PLAYER_BUNKATU_X, PLAYER_Size_H / PLAYER_BUNKATU_Y, &p->PLAYER_Handle[0]);
 
+
+	
+
+	WEAPON_Size = LoadGraph(GAME_WEAPON);	//ウエポン画像の縦と横のサイズを取得するためロードする(すぐに捨てる)
+
+	GetGraphSize(WEAPON_Size, &WEAPON_Size_W, &WEAPON_Size_H);	//ウエポン画像の縦と横のサイズを取得
+
+	DeleteGraph(WEAPON_Size);				//ウエポン画像の縦と横のサイズを取得したら、使い捨て
+
+	//ウエポン画像を指定した分割数、サイズで読み込む
+	LoadDivGraph(GAME_WEAPON, WEAPON_BUNKATU, WEAPON_BUNKATU_X, WEAPON_BUNKATU_Y, WEAPON_Size_W / WEAPON_BUNKATU_X, WEAPON_Size_H / WEAPON_BUNKATU_Y, &w->WEAPON_Handle[0]);
+
+	//for (int cnt = 0; cnt < WEAPON_NUM; cnt++)
+	//{
+	//	//配列の個数分エネミークラスを生成する
+	//	w[cnt] = new WEAPON();
+	//	//ウエポン画像を指定した分割数、サイズで読み込む
+	//	LoadDivGraph(GAME_WEAPON, WEAPON_BUNKATU, WEAPON_BUNKATU_X, WEAPON_BUNKATU_Y, WEAPON_Size_W / WEAPON_BUNKATU_X, WEAPON_Size_H / WEAPON_BUNKATU_Y, &w[cnt]->WEAPON_Handle[0]);
+
+	//}
 
 
 	ENEMY_Size = LoadGraph(GAME_ENEMY);	//プレイヤー画像の縦と横のサイズを取得するためロードする(すぐに捨てる)
@@ -118,6 +143,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			GAME_TITLE_DRAW();	//タイトル画面を描画
 
 			p->PLAYER_RESET();	//プレイヤーを初期位置へ
+
+			w->WEAPON_RESET();	//ウエポンを初期位置へ
+			//for (int cnt = 0; cnt < WEAPON_NUM; cnt++)
+			//{
+			//	w[cnt]->WEAPON_RESET();	//ウエポンを初期位置へ
+			//}
 	
 			break;
 
@@ -130,12 +161,27 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 			p->PLAYER_DRAW();	//プレイヤーの描画処理
 
+			
+			
+			/*for (int cnt = 0, num = 0; cnt < WEAPON_NUM, num < ENEMY_NUM; cnt++, num++)
+			{
+				w[cnt]->PLAYER_COLLISION_ENEMY(e[num]->ENEMY_X, e[num]->ENEMY_Y);
+				w[cnt]->WEAPON_DRAW();
+			}*/
+			//DrawFormatStringF(0,500, RGB(255, 255, 255), "ENEMY_X:%d", e[num]->ENEMY_X);
+
 			for (int num = 0; num < ENEMY_NUM; num++)
 			{
 				p->PLAYER_COLLISION_ENEMY(e[num]->ENEMY_X, e[num]->ENEMY_Y);	//プレイヤーとエネミーの衝突判定
+				w->WEAPON_COLLISION_ENEMY(e[num]->ENEMY_X, e[num]->ENEMY_Y);
+				
 				e[num]->ENEMY_DRAW();		//エネミーの描画処理
 			}
-			
+			DrawFormatStringF(0,200, RGB(255, 255, 255), "ENEMY_X[1]:%d", e[0]->ENEMY_X);
+			DrawFormatStringF(0, 350, RGB(255, 255, 255), "ENEMY_X[2]:%d", e[1]->ENEMY_X);
+			DrawFormatStringF(0, 500, RGB(255, 255, 255), "ENEMY_X[3]:%d", e[2]->ENEMY_X);
+			w->WEAPON_DRAW();
+
 			
 			break;
 
@@ -143,7 +189,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 			//エンド画面の背景画像を描画する
 			DrawExtendGraph(0, 0, GAME_WIDTH, GAME_HEIGHT, imgBack_End, false);		
-
 			GAME_END_DRAW();	//エンド画面を描画
 			break;
 
@@ -160,7 +205,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	delete fps;		//fpsクラスの解放
 	delete p;		//PLAYERクラスの解放
-
+	delete w;
+	/*for (int cnt = 0; cnt < WEAPON_NUM; cnt++)
+	{
+		delete w[cnt];
+	}*/
 	for (int num = 0; num < ENEMY_NUM; num++)
 	{
 		delete e[num];		//ENEMYクラスの解放
@@ -246,3 +295,65 @@ void PLAYER::PLAYER_COLLISION_ENEMY(int ENEMY_X, int ENEMY_Y)
 		screen_state = GAME_END;		//エンド画面へ遷移する
 	}
 }
+
+//ウエポンのY位置を取得する関数
+int WEAPON::Get_WEAPON_Y()
+{
+	//WEAPON_Y = Get_PLAYER_Y() - WEAPON_Size_H / WEAPON_BUNKATU_Y;
+	//プレイヤーを操作する　左　矢印キーを押した場合
+	if (Keyboard_Get(KEY_INPUT_A) >= 1)
+	{
+		//windowの左端まで移動する
+		if (WEAPON_Y >= GAME_MIN_HEIGHT)
+		{
+			WEAPON_Y -= Get_WEAPON_Speed();
+		}
+		
+		/*if (fps->Wait)
+		{
+			PLAYER_soeji = fps->Wait % 2;
+		}*/
+	}
+
+	if (WEAPON_Y < GAME_MIN_HEIGHT)
+	{
+		WEAPON_X = p->Get_PLAYER_X();
+		WEAPON_Y = p->Get_PLAYER_Y() - (WEAPON_Size_H / WEAPON_BUNKATU_Y);
+	}
+	return WEAPON_Y;
+};
+
+
+//ウエポンとエネミーの衝突判定
+void WEAPON::WEAPON_COLLISION_ENEMY(int ENEMY_X, int ENEMY_Y)
+{
+	//キャラとエネミーの当たり判定
+	if (((WEAPON_X > ENEMY_X && WEAPON_X < ENEMY_X + ENEMY_Size_W / ENEMY_BUNKATU_X) ||
+		(ENEMY_X > WEAPON_X && ENEMY_X < WEAPON_X + WEAPON_Size_W / WEAPON_BUNKATU_X)) &&
+		((WEAPON_Y > ENEMY_Y && WEAPON_Y < ENEMY_Y + ENEMY_Size_H / ENEMY_BUNKATU_Y) ||
+		(ENEMY_Y > WEAPON_Y && ENEMY_Y < WEAPON_Y + WEAPON_Size_H / WEAPON_BUNKATU_Y)))
+	{
+		for (int num = 0; num < ENEMY_NUM; num++)
+		{
+			//ウエポンに触れたエネミーの位置や画像の添え字をリセットする
+			e[num]->ENEMY_RESET();
+		}
+	}
+
+	//DrawFormatString(0, 50, RGB(255, 255, 255), "PLAYER：%d", PLAYER_HP);
+
+	////プレイヤーの体力が0以下なら
+	//if (PLAYER_HP <= 0)
+	//{
+	//	for (int num = 0; num < ENEMY_NUM; num++)
+	//	{
+	//		//プレイヤーに触れたエネミーの位置や画像の添え字をリセットする
+	//		e[num]->ENEMY_RESET();
+	//	}
+	//	screen_state = GAME_END;		//エンド画面へ遷移する
+	//}
+}
+
+
+
+

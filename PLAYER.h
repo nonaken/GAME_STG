@@ -1,5 +1,7 @@
 #pragma once
 
+#include"WINDOW_SIZE.h"
+
 #define GAME_PLAYER "クリスマスキャラチップ\\テスト.jpg"
 #define PLAYER_BUNKATU	12			//プレイヤー画像の総分割数
 #define PLAYER_BUNKATU_X 4//3		//プレイヤー画像の横分割数
@@ -7,6 +9,8 @@
 #define PLAYER_MIN_SOEJI 1			//プレイヤーの最初の画像
 #define PLAYER_MAX_SOEJI 12			//プレイヤーの最後の画像
 
+#define PLAYER_X_HALF 2
+#define PLAYER_Y_HALF 2
 
 
 class PLAYER{
@@ -15,8 +19,8 @@ private:
 	int PLAYER_Speed;		//プレイヤーのスピード
 
 public:
-	int PLAYER_X = 0;		//プレイヤーの初期X位置
-	int PLAYER_Y = 0;		//プレイヤーの初期Y位置
+	int PLAYER_X;		//プレイヤーの初期X位置
+	int PLAYER_Y;		//プレイヤーの初期Y位置
 	int PLAYER_soeji = 1;				//プレイヤーの添え字に使う
 	int PLAYER_Handle[PLAYER_MAX_SOEJI];//プレイヤーのハンドル
 	int Get_PLAYER_Speed();				//プレイヤーのスピードを関数で取得

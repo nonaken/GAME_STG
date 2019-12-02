@@ -150,13 +150,15 @@
     <ClCompile Include="Keyboard_Get.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="PLAYER.cpp" />
+    <ClCompile Include="WEAPON.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="PLAYER.h" />
     <ClInclude Include="ENEMY.h" />
     <ClInclude Include="FPS.h" />
     <ClInclude Include="Keyboard_Get.h" />
-    <ClInclude Include="window_size.h" />
+    <ClInclude Include="WEAPON.h" />
+    <ClInclude Include="WINDOW_SIZE.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

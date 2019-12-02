@@ -1,9 +1,7 @@
-#pragma once
-
 #include "DxLib.h"
 #include "PLAYER.h"
 #include "Keyboard_Get.h"
-#include "window_size.h"
+#include "WINDOW_SIZE.h"
 
 int PLAYER_Size;					//プレイヤーの画像サイズをLoadDivGrahpで取得するため
 int PLAYER_Size_W, PLAYER_Size_H;	//プレイヤー画像の横サイズ、縦サイズを取得
@@ -77,7 +75,7 @@ void PLAYER::PLAYER_DRAW()
 //プレイヤーを初期位置へ移動
 void PLAYER::PLAYER_RESET()
 {
-	PLAYER_X = GAME_WIDTH / 2;
-	PLAYER_Y = GAME_HEIGHT / 2;
+	PLAYER_X = GAME_WIDTH / PLAYER_X_HALF;
+	PLAYER_Y = GAME_HEIGHT / PLAYER_Y_HALF;
 	PLAYER_HP = 3;
 }
