@@ -33,7 +33,7 @@ public:
 	void ENEMY_DRAW();				//エネミーの描画処理をする関数
 	void ENEMY_RESET();				//エネミーの初期化をする関数
 	int RANDOM_soeji = RANDOM();	//エネミーの添え字を乱数から取得
-	
+	bool ENEMY_flag = true;
 
 	//ENEMY();
 	//~ENEMY();

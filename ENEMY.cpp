@@ -47,19 +47,6 @@ int ENEMY::Get_ENEMY_X()
 }
 
 
-//エネミーのY位置を取得する関数
-int ENEMY::Get_ENEMY_Y()
-{
-	ENEMY_Y += Get_ENEMY_Speed();
-	if (ENEMY_Y > GAME_HEIGHT)
-	{
-		ENEMY_Y = 0;
-		ENEMY_X = WINDOW_WIDTH_RANDOM_ENEMY_X();
-		RANDOM_soeji = RANDOM();
-	}
-
-	return ENEMY_Y;
-}
 
 //エネミーの描画処理をする関数
 void ENEMY::ENEMY_DRAW()
@@ -70,7 +57,7 @@ void ENEMY::ENEMY_DRAW()
 //エネミーの初期化をする関数
 void ENEMY::ENEMY_RESET()
 {
-	ENEMY_Y = 0;
+	ENEMY_Y = GAME_MIN_HEIGHT - ENEMY_Size_H / ENEMY_BUNKATU_Y;
 	ENEMY_X = WINDOW_WIDTH_RANDOM_ENEMY_X();
 	RANDOM_soeji = RANDOM();
 }

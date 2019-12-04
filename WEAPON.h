@@ -30,5 +30,8 @@ public:
 	void WEAPON_DRAW();				//ウエポンを描画する関数
 	void WEAPON_RESET();			//ウエポンをリセットする関数
 	void WEAPON_COLLISION_ENEMY(int ENEMY_X, int ENEMY_Y);		//ウエポンとエネミーの衝突判定をする関数
+
+	bool WEAPON_flag_X = false;
+	bool WEAPON_flag_Y = false;
 };
 

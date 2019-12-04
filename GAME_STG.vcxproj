@@ -157,6 +157,7 @@
     <ClInclude Include="ENEMY.h" />
     <ClInclude Include="FPS.h" />
     <ClInclude Include="Keyboard_Get.h" />
+    <ClInclude Include="SCORE.h" />
     <ClInclude Include="WEAPON.h" />
     <ClInclude Include="WINDOW_SIZE.h" />
   </ItemGroup>
