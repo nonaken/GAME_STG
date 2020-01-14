@@ -8,18 +8,14 @@ int WEAPON_Size;
 int WEAPON_Size_W, WEAPON_Size_H;
 
 //ウエポンのスピードを取得する関数
-int WEAPON::Get_WEAPON_Speed()
+int WEAPON::Get_WEAPON_Speed(int WEAPON_Speed)
 {
 	//ウエポンのスピード設定
 	WEAPON_Speed = 10;
 	return WEAPON_Speed;
 };
 
-//ウエポンのX位置を取得
-int WEAPON::Get_WEAPON_X()
-{
-	return WEAPON_X;
-};
+
 
 
 //ウエポンを描画する関数

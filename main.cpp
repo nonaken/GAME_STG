@@ -3,13 +3,15 @@
 #include "PLAYER.h"
 #include "ENEMY.h"
 #include "WEAPON.h"
+#include "SCORE.h"
 #include "WINDOW_SIZE.h"
 #include "FPS.h"
+#include "DIFFICULTY_LEVEL.h"
 
 #define GAME_BackImage_TITLE	"BackImage\\kaidou0331_800b.jpg"	//ƒ^ƒCƒgƒ‹‰æ–Ê”wŒi‰æ‘œ
 #define GAME_TITLE_LOG			"BackImage\\game_title_font.png"	//ƒ^ƒCƒgƒ‹ƒƒS
 #define GAME_BackImage_PLAY		"BackImage\\”wŒi_1.png"	//ƒvƒŒƒC‰æ–Ê”wŒi‰æ‘œ
-#define GAME_BackImage_END		"BackImage\\end_2.jpg"				//ƒGƒ“ƒh‰æ–Ê”wŒi‰æ‘œ
+#define GAME_BackImage_END		"BackImage\\GAME_OVER.jpg"				//ƒGƒ“ƒh‰æ–Ê”wŒi‰æ‘œ
 
 #define GAME_FPS_SPEED		60			//FPS‚ğİ’è
 
@@ -17,6 +19,9 @@
 #define GAME_TITLE_LOG_UPPERLEFT_Y		GAME_HEIGHT / 3					//ƒ^ƒCƒgƒ‹ƒƒS‰æ‘œ‚Ì¶ãYÀ•W
 #define GAME_TITLE_LOG_BOTTOMLEFT_X		GAME_WIDTH - GAME_WIDTH / 4		//ƒ^ƒCƒgƒ‹ƒƒS‰æ‘œ‚Ì‰E‰ºXÀ•W
 #define GAME_TITLE_LOG_BOTTOMLEFT_Y		GAME_HEIGHT - GAME_HEIGHT / 3	//ƒ^ƒCƒgƒ‹ƒƒS‰æ‘œ‚Ì‰E‰ºYÀ•W
+
+#define LIMIT_TIME 60 //§ŒÀŠÔ 
+#define  PLAY_END_TIME 0 //I—¹ŠÔ
 
 //Še‰æ–Ê‚ğİ’è
 enum GAME_SCREEN 
@@ -40,6 +45,8 @@ PLAYER *p = new PLAYER();				//ƒvƒŒƒCƒ„[‚ÌƒIƒuƒWƒFƒNƒg‚ğ¶¬‚·‚é
 //WEAPON *w = new WEAPON();				//ƒEƒGƒ|ƒ“‚ÌƒIƒuƒWƒFƒNƒg‚ğ¶¬‚·‚é
 WEAPON *w[WEAPON_NUM];				//ƒEƒGƒ|ƒ“ƒNƒ‰ƒX‚ğ‚T‚Â¶¬‚·‚é
 ENEMY *e[ENEMY_NUM];					//ƒGƒlƒ~[ƒNƒ‰ƒX‚ğ‚R‚Â¶¬‚·‚é
+SCORE *s = new SCORE();			//ƒXƒRƒA‚ÌƒIƒuƒWƒFƒNƒg‚ğ¶¬
+DIFFICULTY *Difficulty_Level = new DIFFICULTY();
 
 extern int PLAYER_Size;						//ƒvƒŒƒCƒ„[‰æ‘œ‚ÌƒTƒCƒY‚ğLoadDivGrahp‚Åæ“¾‚·‚é‚½‚ß(PLAYER.cpp‚Å‚à“¯‚¶•Ï”‚ğ—˜—p‚·‚é‚½‚ßAextern‚ğg—p‚µ‚Ä‚¢‚é)
 extern int PLAYER_Size_W, PLAYER_Size_H;	//ƒvƒŒƒCƒ„[‰æ‘œ‚Ì‰¡ƒTƒCƒYAcƒTƒCƒY‚ğæ“¾			(PLAYER.cpp‚Å‚à“¯‚¶•Ï”‚ğ—˜—p‚·‚é‚½‚ßAextern‚ğg—p‚µ‚Ä‚¢‚é)
@@ -50,6 +57,14 @@ extern int WEAPON_Size_W, WEAPON_Size_H;	//ƒGƒlƒ~[‰æ‘œ‚Ì‰¡ƒTƒCƒYAcƒTƒCƒY‚ğæ“
 
 
 int img_Back_Play_W, img_Back_Play_H;
+
+
+int GAME_TITLE_ELAPSEDTIME; //ƒvƒŒƒC‰æ–Ê‚É‘JˆÚ‚·‚é‚Ü‚Å‚ÌŠÔ‚ğŒv‘ª
+int Get_Time = 0; //GetNowCount()—p‚Ì•Ï”F‹N“®‚µ‚½‚çŠÔ‚ğŒv‘ª‚·‚é
+
+//GetNowCount()‚Í‹N“®‚µ‚Ä‚©‚çŠÔ‚ğŒv‘ª‚·‚é‚½‚ßAƒvƒŒƒC‰æ–Ê‚É‘JˆÚ‚·‚é‚Ü‚Å‚ÌŠ|‚©‚Á‚½ŠÔ‚ğˆø‚­•K—v‚ª‚ ‚é
+//GetNowCount() - timerstart = ƒvƒŒƒC‰æ–Ê‚É‚È‚Á‚½‚çŠÔ‚ğŒv‘ª‚·‚é
+
 // ƒvƒƒOƒ‰ƒ€‚Í WinMain ‚©‚çn‚Ü‚è‚Ü‚·
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
@@ -72,7 +87,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	//ƒvƒŒƒCƒ„[‰æ‘œ‚ğw’è‚µ‚½•ªŠ„”AƒTƒCƒY‚Å“Ç‚İ‚Ş
 	LoadDivGraph(GAME_PLAYER, PLAYER_BUNKATU, PLAYER_BUNKATU_X, PLAYER_BUNKATU_Y, PLAYER_Size_W / PLAYER_BUNKATU_X, PLAYER_Size_H / PLAYER_BUNKATU_Y, &p->PLAYER_Handle[0]);
-
+	
 
 	
 
@@ -120,7 +135,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	//ƒGƒ“ƒh‰æ–Ê‚Ì”wŒi‰æ‘œ‚ğ“Ç‚İ‚Ş
 	int	imgBack_End = LoadGraph(GAME_BackImage_END);			//ƒGƒ“ƒhŒi‰æ‘œ‚ğ“Ç‚İ‚Ş(*’ˆÓFwhile•¶‚Å“Ç‚İ‚Ş‚ÆFPS‚ª’á‰º‚·‚é[–ˆ‰ñ“Ç‚İ‚ñ‚Å‚µ‚Ü‚¤‚½‚ß])
 	
+	//“ïˆÕ“x•ÏX—p‚ÌƒtƒHƒ“ƒgƒnƒ“ƒhƒ‹‚ğì¬
+	int FontHandle_LV_SELECT = CreateFontToHandle(NULL, 70, 3);	//•¶š‚Ì‘å‚«‚³•ÏX
+
+	//§ŒÀŠÔ—p‚ÌƒtƒHƒ“ƒgƒnƒ“ƒhƒ‹‚ğì¬
+	int FontHandle_LIMIT = CreateFontToHandle(NULL, 60, 3);	//•¶š‚Ì‘å‚«‚³•ÏX
+
 	
+	
+
 	while (TRUE)	//–³ŒÀƒ‹[ƒv
 	{
 		if (ProcessMessage() != 0) { break; }	//ƒƒbƒZ[ƒWˆ—‚ÌŒ‹‰Ê‚ªƒGƒ‰[‚Ì‚Æ‚«A‹­§I—¹
@@ -131,16 +154,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 		fps->Update();		//FPS‚Ìˆ—[XV]
 
+		//Œ»İ‚ÌŠÔ‚ğæ“¾
+		Get_Time = GetNowCount();
+
 		switch (screen_state)
 		{
 		case GAME_TITLE:
-			
+
 			//ƒ^ƒCƒgƒ‹‰æ‘œ‚Ì”wŒi‰æ‘œ‚ğ•`‰æ‚·‚é
 			DrawExtendGraph(0, 0, GAME_WIDTH, GAME_HEIGHT, imgBack_Title, false);
 
 			//ƒ^ƒCƒgƒ‹ƒƒS‚Ì‰æ‘œ‚ğ•`‰æ‚·‚é
 			DrawExtendGraph(GAME_TITLE_LOG_UPPERLEFT_X, GAME_TITLE_LOG_UPPERLEFT_Y, GAME_TITLE_LOG_BOTTOMLEFT_X, GAME_TITLE_LOG_BOTTOMLEFT_Y, imgTitle_log, true);
-			
+
 			GAME_TITLE_DRAW();	//ƒ^ƒCƒgƒ‹‰æ–Ê‚ğ•`‰æ
 
 			p->PLAYER_RESET();	//ƒvƒŒƒCƒ„[‚ğ‰ŠúˆÊ’u‚Ö
@@ -150,18 +176,26 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			{
 				w[w_cnt]->WEAPON_RESET();	//ƒEƒGƒ|ƒ“‚ğ‰ŠúˆÊ’u‚Ö
 			}
-	
+
+
+			DrawFormatStringToHandle(100, 400, GetColor(255, 0, 255), FontHandle_LV_SELECT, "“ïˆÕ“xF%s", Difficulty_Level->Lv);
+
+			Difficulty_Level->DIFFICULTY_LEVEL_TITLE();
+
+			Difficulty_Level->DIFFICULTY_LEVEL_PLAY();
+
+			s->SCORE_RESET();
+
 			break;
 
-		case GAME_PLAY:
-
+		case GAME_PLAY: 
 
 			//////////////////////ƒXƒNƒ[ƒ‹ˆ—/////////////////
 			//ƒvƒŒƒC‰æ–Ê‚Ì”wŒi‰æ‘œ‚ğ•`‰æ‚·‚é(‚P–‡–Ú)
 			DrawExtendGraph(img_Back_Play_W, img_Back_Play_H, GAME_WIDTH, GAME_HEIGHT + img_Back_Play_H, imgBack_Play, false);
 
 			//ƒvƒŒƒC‰æ–Ê‚Ì”wŒi‰æ‘œ‚ğ•`‰æ‚·‚é(‚Q–‡–ÚƒXƒNƒ[ƒ‹—p)
-			DrawExtendGraph(img_Back_Play_W, img_Back_Play_H -GAME_HEIGHT, GAME_WIDTH, img_Back_Play_H, imgBack_Play, false);
+			DrawExtendGraph(img_Back_Play_W, img_Back_Play_H - GAME_HEIGHT, GAME_WIDTH, img_Back_Play_H, imgBack_Play, false);
 
 			//‚Q–‡–Ú‚Ì‰æ‘œ‚ÌƒXƒNƒ[ƒ‹‚ªI‚í‚é‚Ü‚Å‰ÁZ‚·‚é
 			if (img_Back_Play_H < GAME_HEIGHT)
@@ -177,18 +211,22 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 			GAME_PLAY_DRAW();	//ƒvƒŒƒC‰æ–Ê‚ğ•`‰æ
 
-			p->PLAYER_DRAW();	//ƒvƒŒƒCƒ„[‚Ì•`‰æˆ—
 
-			
-			
+
+
 			for (int w_cnt = 0, e_num = 0; w_cnt < WEAPON_NUM, e_num < ENEMY_NUM; w_cnt++, e_num++)
 			{
 				p->PLAYER_COLLISION_ENEMY(e[e_num]->ENEMY_X, e[e_num]->ENEMY_Y);	//ƒvƒŒƒCƒ„[‚ÆƒGƒlƒ~[‚ÌÕ“Ë”»’è
-				w[w_cnt]->PLAYER_COLLISION_ENEMY(e[e_num]->ENEMY_X, e[e_num]->ENEMY_Y);
+				w[w_cnt]->WEAPON_COLLISION_ENEMY(e[e_num]->ENEMY_X, e[e_num]->ENEMY_Y);	//ƒEƒGƒ|ƒ“‚ÆƒGƒlƒ~[‚ÌÕ“Ë”»’è
 
 				e[e_num]->ENEMY_DRAW();		//ƒGƒlƒ~[‚Ì•`‰æˆ—
-				w[w_cnt]->WEAPON_DRAW();
+				w[w_cnt]->WEAPON_DRAW();	//ƒEƒGƒ|ƒ“‚Ì•`‰æˆ—
 			}
+
+
+			p->PLAYER_DRAW();	//ƒvƒŒƒCƒ„[‚Ì•`‰æˆ—
+
+
 			//DrawFormatStringF(0,500, RGB(255, 255, 255), "ENEMY_X:%d", e[num]->ENEMY_X);
 
 			//for (int num = 0; num < ENEMY_NUM; num++)
@@ -198,14 +236,25 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			//	
 			//	e[num]->ENEMY_DRAW();		//ƒGƒlƒ~[‚Ì•`‰æˆ—
 			//}
-			DrawFormatStringF(0,200, RGB(255, 255, 255), "ENEMY_X[1]:%d", e[0]->ENEMY_X);
+			DrawFormatStringF(0, 200, RGB(255, 255, 255), "ENEMY_X[1]:%d", e[0]->ENEMY_X);
 			DrawFormatStringF(0, 350, RGB(255, 255, 255), "ENEMY_X[2]:%d", e[1]->ENEMY_X);
 			DrawFormatStringF(0, 500, RGB(255, 255, 255), "ENEMY_X[3]:%d", e[2]->ENEMY_X);
+			DrawFormatStringF(0, 400, RGB(255, 255, 255), "WEAPON_Y[w_cnt]:%d", w[2]->WEAPON_Y);
 			//w->WEAPON_DRAW();
+			s->DRAW_TOTAL_SCORE();
 
-			
+
+			//§ŒÀŠÔ‚Ìİ’è
+			DrawFormatStringToHandle(500, 0, GetColor(255, 255, 255), FontHandle_LIMIT, "LIMIT_TIMEF%d•b", (LIMIT_TIME - (Get_Time - GAME_TITLE_ELAPSEDTIME) / 1000));	//•¶š‚Ì‘å‚«‚³•ÏX);
+
+			//§ŒÀŠÔ‚ª0•b‚É‚È‚Á‚½‚ç
+			if (LIMIT_TIME - (Get_Time - GAME_TITLE_ELAPSEDTIME) / 1000 <= PLAY_END_TIME)
+			{
+				screen_state = GAME_END;
+			}
+
 			break;
-
+		
 		case GAME_END:
 
 			//ƒGƒ“ƒh‰æ–Ê‚Ì”wŒi‰æ‘œ‚ğ•`‰æ‚·‚é
@@ -249,6 +298,7 @@ void GAME_TITLE_DRAW()
 	if (Keyboard_Get(KEY_INPUT_RETURN) == 1)
 	{
 		screen_state = GAME_PLAY;		//ƒvƒŒƒC‰æ–Ê‚Ö‘JˆÚ‚·‚é
+		GAME_TITLE_ELAPSEDTIME = Get_Time;			//ƒvƒŒƒC‰æ–Ê‚Ö‘JˆÚ‚·‚é‚Æ‚«Aƒ^ƒCƒgƒ‹‰æ–Ê‚Å‚©‚©‚Á‚½ŠÔ‚ğ•Ï”‚É“ü‚ê‚é
 	}	
 }
 
@@ -298,16 +348,17 @@ void PLAYER::PLAYER_COLLISION_ENEMY(int ENEMY_X, int ENEMY_Y)
 		{
 			//ƒvƒŒƒCƒ„[‚ÉG‚ê‚½ƒGƒlƒ~[‚ÌˆÊ’u‚â‰æ‘œ‚Ì“Y‚¦š‚ğƒŠƒZƒbƒg‚·‚é
 			e[e_num]->ENEMY_RESET();
+			
 
 			//ƒGƒlƒ~[‚ÉG‚ê‚½‚çƒvƒŒƒCƒ„[‚Ì‘Ì—Í‚ğˆê‚ÂŒ¸‚ç‚·
-			PLAYER_HP -= 1;
+			p->PLAYER_HP -= 1;
 		}
 	}
 
-	DrawFormatString(0, 50, RGB(255, 255, 255), "PLAYERF%d", PLAYER_HP);
+	DrawFormatString(0, 50, RGB(255, 255, 255), "PLAYERF%d", p->PLAYER_HP);
 
 	//ƒvƒŒƒCƒ„[‚Ì‘Ì—Í‚ª0ˆÈ‰º‚È‚ç
-	if (PLAYER_HP <= 0)
+	if (p->PLAYER_HP <= 0)
 	{
 		for (int e_num = 0; e_num < ENEMY_NUM; e_num++)
 		{
@@ -318,48 +369,83 @@ void PLAYER::PLAYER_COLLISION_ENEMY(int ENEMY_X, int ENEMY_Y)
 	}
 }
 
-//ƒEƒGƒ|ƒ“‚ÌYˆÊ’u‚ğæ“¾‚·‚éŠÖ”
-int WEAPON::Get_WEAPON_Y()
+//ƒEƒGƒ|ƒ“‚ÌXˆÊ’u‚ğæ“¾
+int WEAPON::Get_WEAPON_X()
 {
-	//WEAPON_Y = Get_PLAYER_Y() - WEAPON_Size_H / WEAPON_BUNKATU_Y;
-	//ƒEƒGƒ|ƒ“‚ğ‘€ì‚·‚é@A@ƒL[‚ğ‰Ÿ‚µ‚½ê‡
 	if (Keyboard_Get(KEY_INPUT_A) >= 1)
 	{
 		WEAPON_flag_X = true;		//A	ƒL[‚ğ‰Ÿ‚µ‚½‚Æ‚«AƒvƒŒƒCƒ„[‚ÌXÀ•W‚ğæ“¾‚·‚é‚½‚ß‚Ìƒtƒ‰ƒO
-		WEAPON_flag_Y = true;		//A ƒL[‚ğ‰Ÿ‚µ‚½‚Æ‚«A©“®‚ÅYÀ•W‚ğ‰ÁZ‚·‚é‚½‚ß‚Ìƒtƒ‰ƒO
 	}
 
-	//ƒEƒGƒ|ƒ“Xƒtƒ‰ƒO‚ªtrue‚©‚ÂAƒEƒGƒ|ƒ“‚ÌYÀ•W‚ª‰ŠúˆÊ’u‚Å‚È‚¯‚ê‚Î
-	if (WEAPON_flag_X == true && WEAPON_Y == p->Get_PLAYER_Y() - (WEAPON_Size_H / WEAPON_BUNKATU_Y))
+	if (WEAPON_flag_X == false)
 	{
-		//ƒEƒGƒ|ƒ“‚ÌXÀ•W‚ğƒvƒŒƒCƒ„[‚ÌXÀ•W‚Æ“¯‚¶’l‚É‚·‚é
 		WEAPON_X = p->PLAYER_X;
-
-		WEAPON_flag_X = false;
 	}
+	return WEAPON_X;
+};
 
-	//ƒEƒGƒ|ƒ“‚ÌYƒtƒ‰ƒO‚ª(AƒL[‚ğ‰Ÿ‚µ‚½)true‚©‚ÂAƒEƒGƒ|ƒ“‚ÌYÀ•W‚ª(0ˆÈã)‰æ–Ê“à‚È‚ç
-	if (WEAPON_flag_Y == true && WEAPON_Y >= GAME_MIN_HEIGHT)
-	{
-		//window‚Ì¶’[‚Ü‚ÅˆÚ“®‚·‚é	
-		WEAPON_Y -= Get_WEAPON_Speed();
+//ƒEƒGƒ|ƒ“‚ÌYˆÊ’u‚ğæ“¾‚·‚éŠÖ”
+int WEAPON::Get_WEAPON_Y()
+{
 		
-		/*if (fps->Wait)
+		//WEAPON_Y = Get_PLAYER_Y() - WEAPON_Size_H / WEAPON_BUNKATU_Y;
+		//ƒEƒGƒ|ƒ“‚ğ‘€ì‚·‚é@A@ƒL[‚ğ‰Ÿ‚µ‚½ê‡
+		if (Keyboard_Get(KEY_INPUT_A) >= 1)
 		{
-			PLAYER_soeji = fps->Wait % 2;
-		}*/
-	}
-	//ƒEƒGƒ|ƒ“‰æ‘œ‚ÌYÀ•W‚ª‰æ–ÊŠO(0‚æ‚è‚à’á‚¢’l)‚É“’B‚µ‚½‚Æ‚«
-	if (WEAPON_Y < GAME_MIN_HEIGHT)
-	{
-		//ƒEƒGƒ|ƒ“‚ÌYÀ•W‚ğƒvƒŒƒCƒ„[‚ÌYÀ•W‚©‚çAƒEƒGƒ|ƒ“‰æ‘œƒTƒCƒY‚©‚ç•ªŠ„‚µAˆø‚¢‚½’l‚É‚·‚é
-		//(ƒEƒGƒ|ƒ“‚Ì‰æ‘œ‚ğƒvƒŒƒCƒ„[‚Ì“ªã‚É”z’u‚·‚é‚½‚ß)
+			WEAPON_flag_Y = true;		//A ƒL[‚ğ‰Ÿ‚µ‚½‚Æ‚«A©“®‚ÅYÀ•W‚ğ‰ÁZ‚·‚é‚½‚ß‚Ìƒtƒ‰ƒO
+
+			//for (int w_cnt = 0; w_cnt < WEAPON_NUM; w_cnt++)
+			//{
+			//	w[w_cnt]->WEAPON_flag_X = true;		//A	ƒL[‚ğ‰Ÿ‚µ‚½‚Æ‚«AƒvƒŒƒCƒ„[‚ÌXÀ•W‚ğæ“¾‚·‚é‚½‚ß‚Ìƒtƒ‰ƒO
+			//	w[w_cnt]->WEAPON_flag_Y = true;		//A ƒL[‚ğ‰Ÿ‚µ‚½‚Æ‚«A©“®‚ÅYÀ•W‚ğ‰ÁZ‚·‚é‚½‚ß‚Ìƒtƒ‰ƒO
+			//}
+		}
+
+		if (WEAPON_flag_X == false)
+		{
+			WEAPON_Y = p->PLAYER_Y;
+		}
+
+		//A ƒL[‚ğ‰Ÿ‚µ‚½‚Æ‚«A©“®‚ÅYÀ•W‚ğ‰ÁZ‚·‚é‚½‚ß‚Ìƒtƒ‰ƒO
 		if (WEAPON_flag_Y == true)
 		{
-			WEAPON_Y = p->Get_PLAYER_Y() - (WEAPON_Size_H / WEAPON_BUNKATU_Y);
-			WEAPON_flag_Y = false;
+			WEAPON_Y -= Get_WEAPON_Speed(WEAPON_Speed);
 		}
-	}
+
+		for (int w_cnt = 0; w_cnt < WEAPON_NUM; w_cnt++)
+		{	
+			if (w[w_cnt]->WEAPON_flag_X == true && w[w_cnt]->WEAPON_Y == p->PLAYER_Y)// - (WEAPON_Size_H / WEAPON_BUNKATU_Y))
+			{
+				//ƒEƒGƒ|ƒ“‚ÌXÀ•W‚ğƒvƒŒƒCƒ„[‚ÌXÀ•W‚Æ“¯‚¶’l‚É‚·‚é
+				w[w_cnt]->WEAPON_X = p->PLAYER_X;
+
+
+				w[w_cnt]->WEAPON_flag_X = false;
+			}
+
+			//ƒEƒGƒ|ƒ“‚ÌYƒtƒ‰ƒO‚ª(AƒL[‚ğ‰Ÿ‚µ‚½)true‚©‚ÂAƒEƒGƒ|ƒ“‚ÌYÀ•W‚ª(0ˆÈã)‰æ–Ê“à‚È‚ç
+			if (w[w_cnt]->WEAPON_flag_Y == true && w[w_cnt]->WEAPON_Y >= GAME_MIN_HEIGHT)
+			{
+				//window‚Ì¶’[‚Ü‚ÅˆÚ“®‚·‚é	
+				//w[w_cnt]->WEAPON_Y -= w[w_cnt]->Get_WEAPON_Speed(WEAPON_Speed);
+			
+			}
+
+			//ƒEƒGƒ|ƒ“‰æ‘œ‚ÌYÀ•W‚ª‰æ–ÊŠO(0‚æ‚è‚à’á‚¢’l)‚É“’B‚µ‚½‚Æ‚«
+			if (w[w_cnt]->WEAPON_Y < GAME_MIN_HEIGHT)
+			{
+				//ƒEƒGƒ|ƒ“‚ÌYÀ•W‚ğƒvƒŒƒCƒ„[‚ÌYÀ•W‚©‚çAƒEƒGƒ|ƒ“‰æ‘œƒTƒCƒY‚©‚ç•ªŠ„‚µAˆø‚¢‚½’l‚É‚·‚é
+				//(ƒEƒGƒ|ƒ“‚Ì‰æ‘œ‚ğƒvƒŒƒCƒ„[‚Ì“ªã‚É”z’u‚·‚é‚½‚ß)
+				if (w[w_cnt]->WEAPON_flag_Y == true)
+				{
+					//w[w_cnt]->WEAPON_Y = p->PLAYER_Y - (WEAPON_Size_H / WEAPON_BUNKATU_Y);
+					w[w_cnt]->WEAPON_Y = p->PLAYER_Y;
+					w[w_cnt]->WEAPON_X = p->PLAYER_X;
+
+					w[w_cnt]->WEAPON_flag_Y = false;
+				}
+			}
+		}
 	return WEAPON_Y;
 };
 
@@ -367,24 +453,32 @@ int WEAPON::Get_WEAPON_Y()
 //ƒEƒGƒ|ƒ“‚ÆƒGƒlƒ~[‚ÌÕ“Ë”»’è
 void WEAPON::WEAPON_COLLISION_ENEMY(int ENEMY_X, int ENEMY_Y)
 {
-	for (int e_num = 0; e_num < ENEMY_NUM; e_num++)
-	{
-		//ƒLƒƒƒ‰‚ÆƒGƒlƒ~[‚Ì“–‚½‚è”»’è
-		if (((WEAPON_X > e[e_num]->ENEMY_X && WEAPON_X < e[e_num]->ENEMY_X + ENEMY_Size_W / ENEMY_BUNKATU_X) ||
-			(e[e_num]->ENEMY_X > WEAPON_X && e[e_num]->ENEMY_X < WEAPON_X + WEAPON_Size_W / WEAPON_BUNKATU_X)) &&
-			((WEAPON_Y > e[e_num]->ENEMY_Y && WEAPON_Y < e[e_num]->ENEMY_Y + ENEMY_Size_H / ENEMY_BUNKATU_Y) ||
-			(e[e_num]->ENEMY_Y > WEAPON_Y && e[e_num]->ENEMY_Y < WEAPON_Y + WEAPON_Size_H / WEAPON_BUNKATU_Y)))
+		for (int w_cnt = 0; w_cnt < WEAPON_NUM; w_cnt++)
 		{
-				//ƒEƒGƒ|ƒ“‚ÉG‚ê‚½ƒGƒlƒ~[‚ÌˆÊ’u‚â‰æ‘œ‚Ì“Y‚¦š‚ğƒŠƒZƒbƒg‚·‚é
-				e[e_num]->ENEMY_RESET();
-				WEAPON_flag_X = false;		//A	ƒL[‚ğ‰Ÿ‚µ‚½‚Æ‚«AƒvƒŒƒCƒ„[‚ÌXÀ•W‚ğæ“¾‚·‚é‚½‚ß‚Ìƒtƒ‰ƒO
-				WEAPON_flag_Y = false;		//A ƒL[‚ğ‰Ÿ‚µ‚½‚Æ‚«A©“®‚ÅYÀ•W‚ğ‰ÁZ‚·‚é‚½‚ß‚Ìƒtƒ‰ƒO
+			for (int e_num = 0; e_num < ENEMY_NUM; e_num++)
+			{
+				//ƒLƒƒƒ‰‚ÆƒGƒlƒ~[‚Ì“–‚½‚è”»’è
+				if (((w[w_cnt]->WEAPON_X > e[e_num]->ENEMY_X && w[w_cnt]->WEAPON_X < e[e_num]->ENEMY_X + ENEMY_Size_W / ENEMY_BUNKATU_X) ||
+					(e[e_num]->ENEMY_X > w[w_cnt]->WEAPON_X && e[e_num]->ENEMY_X < w[w_cnt]->WEAPON_X + WEAPON_Size_W / WEAPON_BUNKATU_X)) &&
+					((w[w_cnt]->WEAPON_Y > e[e_num]->ENEMY_Y && w[w_cnt]->WEAPON_Y < e[e_num]->ENEMY_Y + ENEMY_Size_H / ENEMY_BUNKATU_Y) ||
+					(e[e_num]->ENEMY_Y > w[w_cnt]->WEAPON_Y && e[e_num]->ENEMY_Y < w[w_cnt]->WEAPON_Y + WEAPON_Size_H / WEAPON_BUNKATU_Y)))
+				{
+					//ƒEƒGƒ|ƒ“‚ÉG‚ê‚½ƒGƒlƒ~[‚ÌˆÊ’u‚â‰æ‘œ‚Ì“Y‚¦š‚ğƒŠƒZƒbƒg‚·‚é
+					e[e_num]->ENEMY_RESET();
 
-				//ƒEƒGƒ|ƒ“‚ÌYÀ•W‚ğƒvƒŒƒCƒ„[‚ÌYÀ•W‚©‚çAƒEƒGƒ|ƒ“‰æ‘œƒTƒCƒY‚©‚ç•ªŠ„‚µAˆø‚¢‚½’l‚É‚·‚é
-				//(ƒEƒGƒ|ƒ“‚Ì‰æ‘œ‚ğƒvƒŒƒCƒ„[‚Ì“ªã‚É”z’u‚·‚é‚½‚ß)
-				WEAPON_Y = p->Get_PLAYER_Y() - (WEAPON_Size_H / WEAPON_BUNKATU_Y);
+					w[w_cnt]->WEAPON_flag_X = false;		//A	ƒL[‚ğ‰Ÿ‚µ‚½‚Æ‚«AƒvƒŒƒCƒ„[‚ÌXÀ•W‚ğæ“¾‚·‚é‚½‚ß‚Ìƒtƒ‰ƒO
+					w[w_cnt]->WEAPON_flag_Y = false;		//A ƒL[‚ğ‰Ÿ‚µ‚½‚Æ‚«A©“®‚ÅYÀ•W‚ğ‰ÁZ‚·‚é‚½‚ß‚Ìƒtƒ‰ƒO
+
+					//ƒEƒGƒ|ƒ“‚ÌYÀ•W‚ğƒvƒŒƒCƒ„[‚ÌYÀ•W‚©‚çAƒEƒGƒ|ƒ“‰æ‘œƒTƒCƒY‚©‚ç•ªŠ„‚µAˆø‚¢‚½’l‚É‚·‚é
+					//(ƒEƒGƒ|ƒ“‚Ì‰æ‘œ‚ğƒvƒŒƒCƒ„[‚Ì“ªã‚É”z’u‚·‚é‚½‚ß)
+					//w[w_cnt]->WEAPON_Y = p->Get_PLAYER_Y() - (WEAPON_Size_H / WEAPON_BUNKATU_Y);
+					w[w_cnt]->WEAPON_Y = p->Get_PLAYER_Y();
+					s->TOTAL_SCORE();
+
+
+				}
+			}
 		}
-	}
 
 	//DrawFormatString(0, 50, RGB(255, 255, 255), "PLAYERF%d", PLAYER_HP);
 
@@ -416,14 +510,40 @@ int ENEMY::Get_ENEMY_Y()
 	for (int e_num = 0; e_num < ENEMY_NUM; e_num++)
 	{
 		if (e[e_num]->ENEMY_Y > GAME_HEIGHT)
-		{
+		{	
 			e[e_num]->ENEMY_Y = GAME_MIN_HEIGHT - ENEMY_Size_H / ENEMY_BUNKATU_Y;
 			e[e_num]->ENEMY_X = WINDOW_WIDTH_RANDOM_ENEMY_X();
-			RANDOM_soeji = RANDOM();
+			RANDOM_soeji = RANDOM();	
 			//ENEMY_flag = false;
 		}
 	}
 
 	return ENEMY_Y;
+}
+
+
+//ƒ^ƒCƒgƒ‹‰æ–Ê‚Å“ïˆÕ“x‚ğ•ÏX‚µ‚½‚çAŠe“ïˆÕ“x‚É‰‚¶‚Äc‹@‚âƒGƒlƒ~[‚Ì”‚ğ’²®‚·‚éŠÖ”
+void DIFFICULTY::DIFFICULTY_LEVEL_PLAY()
+{
+	//Easy@c‹@3
+	if (Keyboard_Get(KEY_INPUT_RETURN) == 1 && Lv_Select == 0)
+	{
+		p->PLAYER_HP = 3;
+		screen_state = GAME_PLAY;	//ƒV[ƒ“‚ğƒQ[ƒ€‰æ–Ê‚É•ÏX
+	}
+
+	//Normal@c‹@2
+	if (Keyboard_Get(KEY_INPUT_RETURN) == 1 && Lv_Select == 1)
+	{
+		p->PLAYER_HP = 2;
+		screen_state = GAME_PLAY;	//ƒV[ƒ“‚ğƒQ[ƒ€‰æ–Ê‚É•ÏX
+	}
+
+	//Hard@c‹@1
+	if (Keyboard_Get(KEY_INPUT_RETURN) == 1 && Lv_Select == 2)
+	{
+		p->PLAYER_HP = 1;
+		screen_state = GAME_PLAY;	//ƒV[ƒ“‚ğƒQ[ƒ€‰æ–Ê‚É•ÏX
+	}
 }
 

@@ -9,7 +9,7 @@
 #define ENEMY_MIN_SOEJI 1		//エネミーの最初の画像
 #define ENEMY_MAX_SOEJI 12		//エネミーの最後の画像
 
-#define ENEMY_NUM 3				//画面に登場するエネミーの数
+#define ENEMY_NUM 3		//画面に登場するエネミーの数
 
 
 class ENEMY
@@ -34,6 +34,7 @@ public:
 	void ENEMY_RESET();				//エネミーの初期化をする関数
 	int RANDOM_soeji = RANDOM();	//エネミーの添え字を乱数から取得
 	bool ENEMY_flag = true;
+	int ENEMY_SPAWN_RANDOM();
 
 	//ENEMY();
 	//~ENEMY();

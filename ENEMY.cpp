@@ -33,6 +33,20 @@ int ENEMY::WINDOW_WIDTH_RANDOM_ENEMY_X()
 	return WINDOW_WIDTH_RANDOM_ENEMY_X(mt);
 }
 
+//エネミーを乱数が指定したの数値になったら生成する
+int ENEMY::ENEMY_SPAWN_RANDOM()
+{
+	std::random_device rd;
+
+	std::mt19937 mt(rd());
+
+	//ENEMY_RANDOM_X_DROW = true;
+	//エネミー画像の添え字の最小値から最大値までを乱数で決める
+	std::uniform_int_distribution<int> ENEMY_SPAWN_RANDOM(ENEMY_MIN_SOEJI - 1, 50);	//添え字は最初１から数えるため
+
+	return ENEMY_SPAWN_RANDOM(mt);
+}
+
 //エネミーのスピードを取得する関数
 int ENEMY::Get_ENEMY_Speed()
 {
@@ -57,9 +71,9 @@ void ENEMY::ENEMY_DRAW()
 //エネミーの初期化をする関数
 void ENEMY::ENEMY_RESET()
 {
-	ENEMY_Y = GAME_MIN_HEIGHT - ENEMY_Size_H / ENEMY_BUNKATU_Y;
-	ENEMY_X = WINDOW_WIDTH_RANDOM_ENEMY_X();
-	RANDOM_soeji = RANDOM();
+		ENEMY_Y = GAME_MIN_HEIGHT - ENEMY_Size_H / ENEMY_BUNKATU_Y;
+		ENEMY_X = WINDOW_WIDTH_RANDOM_ENEMY_X();
+		RANDOM_soeji = RANDOM();
 }
 
 
