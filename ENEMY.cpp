@@ -33,6 +33,7 @@ int ENEMY::WINDOW_WIDTH_RANDOM_ENEMY_X()
 	return WINDOW_WIDTH_RANDOM_ENEMY_X(mt);
 }
 
+/*
 //エネミーを乱数が指定したの数値になったら生成する
 int ENEMY::ENEMY_SPAWN_RANDOM()
 {
@@ -46,6 +47,7 @@ int ENEMY::ENEMY_SPAWN_RANDOM()
 
 	return ENEMY_SPAWN_RANDOM(mt);
 }
+*/
 
 //エネミーのスピードを取得する関数
 int ENEMY::Get_ENEMY_Speed()

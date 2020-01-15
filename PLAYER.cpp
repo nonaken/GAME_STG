@@ -6,11 +6,16 @@
 int PLAYER_Size;					//プレイヤーの画像サイズをLoadDivGrahpで取得するため
 int PLAYER_Size_W, PLAYER_Size_H;	//プレイヤー画像の横サイズ、縦サイズを取得
 
+#define PLAYER_DOWN_SOEJI 0			//下向きの画像
+#define PLAYER_UP_SOEJI 9			//上向きの画像
+#define PLAYER_LEFT_SOEJI 3			//左向きの画像
+#define PLAYER_RIGHT_SOEJI 6		//右向きの画像
+
 //プレイヤーのスピードを取得する関数
 int PLAYER::Get_PLAYER_Speed()
 {
 	//プレイヤーのスピード設定
-	PLAYER_Speed = 10;
+	PLAYER_Speed = 5;
 	return PLAYER_Speed;
 }
 
@@ -24,6 +29,13 @@ int PLAYER::Get_PLAYER_X()
 		if (PLAYER_X >= GAME_MIN_WIDTH)
 		{
 			PLAYER_X -= Get_PLAYER_Speed();
+
+			//アニメーション用カウント
+			PLAYER_COUNT++;
+			
+			//左に移動するアニメーション
+			PLAYER_soeji = PLAYER_LEFT_SOEJI + (PLAYER_COUNT / 5) % 3;
+			
 		}
 		/*if (fps->Wait)
 		{
@@ -37,6 +49,14 @@ int PLAYER::Get_PLAYER_X()
 		if (PLAYER_X <= GAME_WIDTH - PLAYER_Size_W / PLAYER_BUNKATU_X)
 		{
 			PLAYER_X += Get_PLAYER_Speed();
+			
+			//アニメーション用カウント
+			PLAYER_COUNT++;
+			
+			//右に移動するアニメーション
+			PLAYER_soeji = PLAYER_RIGHT_SOEJI + (PLAYER_COUNT / 5) % 3;
+			
+			
 		}
 	}
 	return PLAYER_X;
@@ -52,6 +72,13 @@ int PLAYER::Get_PLAYER_Y()
 		if (PLAYER_Y >= GAME_MIN_HEIGHT)
 		{
 			PLAYER_Y -= Get_PLAYER_Speed();
+
+			//アニメーション用カウント
+			PLAYER_COUNT++;
+			
+			//上に移動するアニメーション
+			PLAYER_soeji = PLAYER_UP_SOEJI + (PLAYER_COUNT / 5) % 3;
+			
 		}
 	}
 	//プレイヤーを操作する　下　矢印キーを押した場合
@@ -61,6 +88,13 @@ int PLAYER::Get_PLAYER_Y()
 		if (PLAYER_Y <= GAME_HEIGHT - PLAYER_Size_H / PLAYER_BUNKATU_Y)
 		{
 			PLAYER_Y += Get_PLAYER_Speed();
+
+			//アニメーション用カウント
+			PLAYER_COUNT++;
+			
+			//下に移動するアニメーション
+			PLAYER_soeji = PLAYER_DOWN_SOEJI + (PLAYER_COUNT / 5) % 3;
+			
 		}
 	}
 	return PLAYER_Y;

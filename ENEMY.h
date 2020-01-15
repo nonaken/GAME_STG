@@ -1,13 +1,13 @@
 #pragma once
 
 
-#define GAME_ENEMY		"クリスマスキャラチップ\\テスト.jpg"			//キャラクター画像
-#define ENEMY_BUNKATU	12		//プレイヤー画像の総分割数
-#define ENEMY_BUNKATU_X 4//3	//プレイヤー画像の横分割数
-#define ENEMY_BUNKATU_Y 3//4	//プレイヤー画像の縦分割数
+#define GAME_ENEMY		"animals\\Bison.png"			//キャラクター画像
+#define ENEMY_BUNKATU	96		//プレイヤー画像の総分割数
+#define ENEMY_BUNKATU_X 12//3	//プレイヤー画像の横分割数
+#define ENEMY_BUNKATU_Y 8//4	//プレイヤー画像の縦分割数
 
 #define ENEMY_MIN_SOEJI 1		//エネミーの最初の画像
-#define ENEMY_MAX_SOEJI 12		//エネミーの最後の画像
+#define ENEMY_MAX_SOEJI 96		//エネミーの最後の画像
 
 #define ENEMY_NUM 3		//画面に登場するエネミーの数
 
@@ -34,7 +34,7 @@ public:
 	void ENEMY_RESET();				//エネミーの初期化をする関数
 	int RANDOM_soeji = RANDOM();	//エネミーの添え字を乱数から取得
 	bool ENEMY_flag = true;
-	int ENEMY_SPAWN_RANDOM();
+	//int ENEMY_SPAWN_RANDOM();
 
 	//ENEMY();
 	//~ENEMY();
