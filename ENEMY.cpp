@@ -3,8 +3,12 @@
 #include <random>
 #include "ENEMY.h"
 
-int ENEMY_Size;						//プレイヤーの画像サイズをLoadDivGrahpで取得するため
-int ENEMY_Size_W, ENEMY_Size_H;		//プレイヤー画像の横サイズ、縦サイズを取得
+int ENEMY_Size;						//エネミーの画像サイズをLoadDivGrahpで取得するため
+int ENEMY_Size_W, ENEMY_Size_H;		//エネミーの画像の横サイズ、縦サイズを取得
+
+int ENEMY_ANIMATION_Size;						//エネミー画像のサイズをLoadDivGrahpで取得するため	(ENEMY.cppでも同じ変数を利用するため、externを使用している)
+int ENEMY_ANIMATION_Size_W, ENEMY_ANIMATION_Size_H;		//エネミー画像の横サイズ、縦サイズを取得	(ENEMY.cppでも同じ変数を利用するため、externを使用している)
+
 
 //エネミーX座標を乱数で生成する関数(乱数はメルセンヌ・ツイスタを使用)
 int ENEMY::RANDOM()
@@ -69,6 +73,16 @@ void ENEMY::ENEMY_DRAW()
 {
 	DrawGraph(Get_ENEMY_X(), Get_ENEMY_Y(), ENEMY_Handle[RANDOM_soeji], TRUE);
 }
+
+//エネミーの爆発アニメーションを描画する関数
+void ENEMY::ENEMY_ANIMATION_DRAW(int x,int y)
+{
+	//DrawGraph(Get_ENEMY_X() - ENEMY_ANIMATION_Size_W / ENEMY_ANIMATION_BUNKATU_X / 2, Get_ENEMY_Y() - ENEMY_ANIMATION_Size_H / ENEMY_ANIMATION_BUNKATU_Y / 2, ENEMY_ANIMATION_Handle[ENEMY_ANIMATION_soeji], TRUE);
+
+	DrawGraph(Get_ENEMY_X() - x, Get_ENEMY_Y() - y,ENEMY_ANIMATION_Handle[ENEMY_ANIMATION_soeji], TRUE);
+
+}
+
 
 //エネミーの初期化をする関数
 void ENEMY::ENEMY_RESET()

@@ -9,17 +9,18 @@
 #define PLAYER_MIN_SOEJI 1			//プレイヤーの最初の画像
 #define PLAYER_MAX_SOEJI 12			//プレイヤーの最後の画像
 
-#define PLAYER_X_HALF 2
-#define PLAYER_Y_HALF 2
+#define PLAYER_X_HALF 2				//プレイヤーの初期X位置(画面の横幅 / 2)
+#define PLAYER_Y_HALF 2				//プレイヤーの初期Y位置(画面の縦幅 / 2)
 
 
+//プレイヤーのクラス
 class PLAYER{
 private:
 	
-	int PLAYER_Speed;		//プレイヤーのスピード
+	int PLAYER_Speed;	//プレイヤーのスピード
 
 public:
-	int PLAYER_HP = 3;		//プレイヤーの体力
+	int PLAYER_HP = 3;	//プレイヤーの体力
 	int PLAYER_X;		//プレイヤーの初期X位置
 	int PLAYER_Y;		//プレイヤーの初期Y位置
 	int PLAYER_soeji = 0;				//プレイヤーの添え字に使う
@@ -28,9 +29,9 @@ public:
 	int Get_PLAYER_X();					//プレイヤーのX位置を関数で取得
 	int Get_PLAYER_Y();					//プレイヤーのY位置を関数で取得
 	void PLAYER_DRAW();					//プレイヤーを描画する関数
-	void PLAYER_RESET();
+	void PLAYER_RESET();				//プレイヤーの初期設定
 	void PLAYER_COLLISION_ENEMY(int ENEMY_X, int ENEMY_Y);		//プレイヤーとエネミーの衝突判定をする関数
-	int PLAYER_COUNT = 0;
+	int PLAYER_COUNT = 0;				//プレイヤーのアニメーション用カウント
 };
 
 

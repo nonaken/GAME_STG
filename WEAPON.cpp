@@ -3,9 +3,8 @@
 #include "Keyboard_Get.h"
 #include "WINDOW_SIZE.h"
 
-
-int WEAPON_Size;
-int WEAPON_Size_W, WEAPON_Size_H;
+int WEAPON_Size;					//ウエポンの画像サイズをLoadDivGrahpで取得するため
+int WEAPON_Size_W, WEAPON_Size_H;	//ウエポン画像の横サイズ、縦サイズを取得
 
 //ウエポンのスピードを取得する関数
 int WEAPON::Get_WEAPON_Speed(int WEAPON_Speed)
@@ -14,9 +13,6 @@ int WEAPON::Get_WEAPON_Speed(int WEAPON_Speed)
 	WEAPON_Speed = 10;
 	return WEAPON_Speed;
 };
-
-
-
 
 //ウエポンを描画する関数
 void WEAPON::WEAPON_DRAW()

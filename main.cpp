@@ -10,8 +10,9 @@
 
 #define GAME_BackImage_TITLE	"BackImage\\kaidou0331_800b.jpg"	//タイトル画面背景画像
 #define GAME_TITLE_LOG			"BackImage\\game_title_font.png"	//タイトルロゴ
-#define GAME_BackImage_PLAY		"BackImage\\背景_1.png"	//プレイ画面背景画像
-#define GAME_BackImage_END		"BackImage\\GAME_OVER.jpg"				//エンド画面背景画像
+#define GAME_BackImage_PLAY		"BackImage\\背景_1.png"				//プレイ画面背景画像
+#define GAME_BackImage_CLEAR	"BackImage\\GAME_CLEAR.jpg"			//クリア画面背景画像
+#define GAME_BackImage_END		"BackImage\\GAME_OVER.jpg"			//エンド画面背景画像
 
 #define GAME_FPS_SPEED		60			//FPSを設定
 
@@ -21,13 +22,19 @@
 #define GAME_TITLE_LOG_BOTTOMLEFT_Y		GAME_HEIGHT - GAME_HEIGHT / 3	//タイトルロゴ画像の右下Y座標
 
 #define LIMIT_TIME 60 //制限時間 
-#define  PLAY_END_TIME 0 //終了時間
+#define PLAY_END_TIME 0 //終了時間
+
+#define GAME_CLEAR_SCORE 150		//ゲームクリアに必要なスコア
+
+#define ANIMATION_FRAME 5			//アニメーションの描画を切り替えるフレーム数
+#define ANIMETION_PATTERN 3			//アニメーションの種類
 
 //各画面を設定
-enum GAME_SCREEN 
+enum GAME_SCREEN
 {
 	GAME_TITLE,	//タイトル画面
 	GAME_PLAY,	//プレイ画面
+	GAME_CLEAR,	//クリア画面
 	GAME_END	//エンド画面
 };
 
@@ -35,18 +42,19 @@ enum GAME_SCREEN
 GAME_SCREEN screen_state = GAME_TITLE;	//画面遷移をコントロールする(最初の画面はタイトル画面)
 
 //プロトタイプ宣言
-void GAME_TITLE_DRAW();	//タイトル画面を描画
-void GAME_PLAY_DRAW();	//プレイ画面を描画
-void GAME_END_DRAW();	//エンド画面を描画
+void GAME_TITLE_DRAW();		//タイトル画面を描画
+void GAME_PLAY_DRAW();		//プレイ画面を描画
+void GAME_CLEAR_DRAW();		//クリア画面を描画
+void GAME_END_DRAW();		//エンド画面を描画
 
 
 FPS *fps = new FPS(GAME_FPS_SPEED);		//FPSクラスのオブジェクトを生成
 PLAYER *p = new PLAYER();				//プレイヤーのオブジェクトを生成する
 //WEAPON *w = new WEAPON();				//ウエポンのオブジェクトを生成する
-WEAPON *w[WEAPON_NUM];				//ウエポンクラスを５つ生成する
+WEAPON *w[WEAPON_NUM];					//ウエポンクラスを５つ生成する
 ENEMY *e[ENEMY_NUM];					//エネミークラスを３つ生成する
-SCORE *s = new SCORE();			//スコアのオブジェクトを生成
-DIFFICULTY *Difficulty_Level = new DIFFICULTY();
+SCORE *s = new SCORE();					//スコアのオブジェクトを生成
+DIFFICULTY *Difficulty_Level = new DIFFICULTY();		//難易度変更を設定するクラスを生成する
 
 extern int PLAYER_Size;						//プレイヤー画像のサイズをLoadDivGrahpで取得するため(PLAYER.cppでも同じ変数を利用するため、externを使用している)
 extern int PLAYER_Size_W, PLAYER_Size_H;	//プレイヤー画像の横サイズ、縦サイズを取得			(PLAYER.cppでも同じ変数を利用するため、externを使用している)
@@ -55,12 +63,14 @@ extern int ENEMY_Size_W, ENEMY_Size_H;		//エネミー画像の横サイズ、縦サイズを取得
 extern int WEAPON_Size;						//ウエポン画像のサイズをLoadDivGrahpで取得するため	(ENEMY.cppでも同じ変数を利用するため、externを使用している)
 extern int WEAPON_Size_W, WEAPON_Size_H;	//エネミー画像の横サイズ、縦サイズを取得			(ENEMY.cppでも同じ変数を利用するため、externを使用している)
 
+extern int ENEMY_ANIMATION_Size;						//エネミー画像のサイズをLoadDivGrahpで取得するため	(ENEMY.cppでも同じ変数を利用するため、externを使用している)
+extern int ENEMY_ANIMATION_Size_W, ENEMY_ANIMATION_Size_H;		//エネミー画像の横サイズ、縦サイズを取得	(ENEMY.cppでも同じ変数を利用するため、externを使用している)
 
-int img_Back_Play_W, img_Back_Play_H;
+int img_Back_Play_W, img_Back_Play_H;		//プレイ画面の縦スクロール背景 横サイズと縦サイズを保持する変数
 
 
 int GAME_TITLE_ELAPSEDTIME; //プレイ画面に遷移するまでの時間を計測
-int Get_Time = 0; //GetNowCount()用の変数：起動したら時間を計測する
+int Get_Time = 0;			//GetNowCount()用の変数：起動したら時間を計測する
 
 //GetNowCount()は起動してから時間を計測するため、プレイ画面に遷移するまでの掛かった時間を引く必要がある
 //GetNowCount() - timerstart = プレイ画面になったら時間を計測する
@@ -76,7 +86,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		return -1;				// エラーが起きたら直ちに終了
 	}
 
-	SetDrawScreen(DX_SCREEN_BACK);	//描画を裏画面に設定
+	SetDrawScreen(DX_SCREEN_BACK);			//描画を裏画面に設定
 
 
 	PLAYER_Size = LoadGraph(GAME_PLAYER);	//プレイヤー画像の縦と横のサイズを取得するためロードする(すぐに捨てる)
@@ -88,9 +98,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	//プレイヤー画像を指定した分割数、サイズで読み込む
 	LoadDivGraph(GAME_PLAYER, PLAYER_BUNKATU, PLAYER_BUNKATU_X, PLAYER_BUNKATU_Y, PLAYER_Size_W / PLAYER_BUNKATU_X, PLAYER_Size_H / PLAYER_BUNKATU_Y, &p->PLAYER_Handle[0]);
 	
-
-	
-
 	WEAPON_Size = LoadGraph(GAME_WEAPON);	//ウエポン画像の縦と横のサイズを取得するためロードする(すぐに捨てる)
 
 	GetGraphSize(WEAPON_Size, &WEAPON_Size_W, &WEAPON_Size_H);	//ウエポン画像の縦と横のサイズを取得
@@ -115,13 +122,30 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	DeleteGraph(ENEMY_Size);			//プレイヤー画像の縦と横のサイズを取得したら、使い捨て
 
+
+	ENEMY_ANIMATION_Size = LoadGraph(ENEMY_EXPROSION_ANIMATION);	//エネミーの爆発アニメーション用画像の縦と横のサイズを取得するためロードする（すぐに捨てる）
+
+	GetGraphSize(ENEMY_ANIMATION_Size, &ENEMY_ANIMATION_Size_W, &ENEMY_ANIMATION_Size_H);	//エネミーの爆発アニメーション用画像の縦と横のサイズを取得
+
+	DeleteGraph(ENEMY_ANIMATION_Size);			//エネミーの爆発アニメーション用画像の縦と横のサイズを取得したら、使い捨て
+
+
 	for (int e_num = 0; e_num < ENEMY_NUM; e_num++)
 	{
 		//配列の個数分エネミークラスを生成する
 		e[e_num] = new ENEMY();
 		//エネミー画像を配列の個数分、指定した分割数、サイズで読み込む
 		LoadDivGraph(GAME_ENEMY, ENEMY_BUNKATU, ENEMY_BUNKATU_X, ENEMY_BUNKATU_Y, ENEMY_Size_W / ENEMY_BUNKATU_X, ENEMY_Size_H / ENEMY_BUNKATU_Y, &e[e_num]->ENEMY_Handle[0]);
+
+		//爆発アニメーションの画像を配列の個数分、指定した分割数、サイズで読み込む
+		LoadDivGraph(ENEMY_EXPROSION_ANIMATION, ENEMY_ANIMATION_BUNKATU, ENEMY_ANIMATION_BUNKATU_X, ENEMY_ANIMATION_BUNKATU_Y, ENEMY_ANIMATION_Size_W / ENEMY_ANIMATION_BUNKATU_X, ENEMY_ANIMATION_Size_H / ENEMY_ANIMATION_BUNKATU_Y, &e[e_num]->ENEMY_ANIMATION_Handle[0]);
 	}
+	//int ENEMY_BUNKATU_SIZE_X = 0,  ENEMY_BUNKATU_SIZE_Y= 0, ANIMATION_BUNKATU_SIZE_X = 0, ANIMATION_BUNKATU_SIZE_Y = 0;
+
+	//GetGraphSize(e[0]->ENEMY_Handle[0], &ENEMY_BUNKATU_SIZE_X, &ENEMY_BUNKATU_SIZE_Y);	//プレイヤー画像の縦と横のサイズを取得
+
+	//GetGraphSize(e[0]->ENEMY_ANIMATION_Handle[0], &ANIMATION_BUNKATU_SIZE_X, &ANIMATION_BUNKATU_SIZE_Y);	//プレイヤー画像の縦と横のサイズを取得
+
 
 
 	//タイトル画面の背景の画像を読み込む
@@ -132,6 +156,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	//プレイ画面の背景画像を読み込む
 	int imgBack_Play = LoadGraph(GAME_BackImage_PLAY);			//プレイ背景画像を読み込む(*注意：while文で読み込むとFPSが低下する[毎回読み込んでしまうため])
 
+	//クリア画面の背景画像を読み込む
+	int	imgBack_CLEAR = LoadGraph(GAME_BackImage_CLEAR);			//エンド景画像を読み込む(*注意：while文で読み込むとFPSが低下する[毎回読み込んでしまうため])
+
 	//エンド画面の背景画像を読み込む
 	int	imgBack_End = LoadGraph(GAME_BackImage_END);			//エンド景画像を読み込む(*注意：while文で読み込むとFPSが低下する[毎回読み込んでしまうため])
 	
@@ -139,7 +166,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	int FontHandle_LV_SELECT = CreateFontToHandle(NULL, 70, 3);	//文字の大きさ変更
 
 	//制限時間用のフォントハンドルを作成
-	int FontHandle_LIMIT = CreateFontToHandle(NULL, 60, 3);	//文字の大きさ変更
+	int FontHandle_LIMIT = CreateFontToHandle(NULL, 60, 3);		//文字の大きさ変更
 
 	
 	
@@ -150,16 +177,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 		if (ClearDrawScreen() != 0) { break; }	//画面を消去できなかったとき、強制終了
 
-		Keyboard_Update();   //キーボードの更新
+		Keyboard_Update();  //キーボードの更新
 
 		fps->Update();		//FPSの処理[更新]
 
 		//現在の時間を取得
 		Get_Time = GetNowCount();
 
+		//ウィンドウのシーン状態
 		switch (screen_state)
 		{
-		case GAME_TITLE:
+		case GAME_TITLE:		//ゲームタイトル画面
 
 			//タイトル画像の背景画像を描画する
 			DrawExtendGraph(0, 0, GAME_WIDTH, GAME_HEIGHT, imgBack_Title, false);
@@ -178,17 +206,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			}
 
 
-			DrawFormatStringToHandle(100, 400, GetColor(255, 0, 255), FontHandle_LV_SELECT, "難易度：%s", Difficulty_Level->Lv);
+			DrawFormatStringToHandle(100, 400, GetColor(255, 0, 255), FontHandle_LV_SELECT, "難易度：%s", Difficulty_Level->Lv);	//難易度を描画する関数
 
-			Difficulty_Level->DIFFICULTY_LEVEL_TITLE();
+			Difficulty_Level->DIFFICULTY_LEVEL_TITLE();	//プレイ画面でEasy,Normal,Hardを変更し、値を保持する関数
 
-			Difficulty_Level->DIFFICULTY_LEVEL_PLAY();
+			Difficulty_Level->DIFFICULTY_LEVEL_PLAY();	//プレイ画面でEasy,Normal,Hardを変更した値を基に難易度変更を実施する関数
 
-			s->SCORE_RESET();
+			s->SCORE_RESET();		//スコアのリセットする関数
 
 			break;
 
-		case GAME_PLAY: 
+		case GAME_PLAY:			//ゲームプレイ画面
 
 			//////////////////////スクロール処理/////////////////
 			//プレイ画面の背景画像を描画する(１枚目)
@@ -213,13 +241,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 
 
-
+			//ウエポンとエネミーを複数生成する
 			for (int w_cnt = 0, e_num = 0; w_cnt < WEAPON_NUM, e_num < ENEMY_NUM; w_cnt++, e_num++)
 			{
-				p->PLAYER_COLLISION_ENEMY(e[e_num]->ENEMY_X, e[e_num]->ENEMY_Y);	//プレイヤーとエネミーの衝突判定
+				p->PLAYER_COLLISION_ENEMY(e[e_num]->ENEMY_X, e[e_num]->ENEMY_Y);		//プレイヤーとエネミーの衝突判定
 				w[w_cnt]->WEAPON_COLLISION_ENEMY(e[e_num]->ENEMY_X, e[e_num]->ENEMY_Y);	//ウエポンとエネミーの衝突判定
 
 				e[e_num]->ENEMY_DRAW();		//エネミーの描画処理
+				//e[e_num]->ENEMY_ANIMATION_DRAW((ANIMATION_BUNKATU_SIZE_X / 2) - (ENEMY_BUNKATU_SIZE_X / 2), (ANIMATION_BUNKATU_SIZE_Y / 2) - (ENEMY_BUNKATU_SIZE_Y / 2));
+				e[e_num]->ENEMY_ANIMATION_DRAW((ENEMY_ANIMATION_Size_W / ENEMY_ANIMATION_BUNKATU_X  / 2) - (ENEMY_Size_W / ENEMY_BUNKATU_X / 2), (ENEMY_ANIMATION_Size_H / ENEMY_ANIMATION_BUNKATU_Y / 2) - (ENEMY_Size_H / ENEMY_BUNKATU_Y / 2));
 				w[w_cnt]->WEAPON_DRAW();	//ウエポンの描画処理
 			}
 
@@ -241,7 +271,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			DrawFormatStringF(0, 500, RGB(255, 255, 255), "ENEMY_X[3]:%d", e[2]->ENEMY_X);
 			DrawFormatStringF(0, 400, RGB(255, 255, 255), "WEAPON_Y[w_cnt]:%d", w[2]->WEAPON_Y);
 			//w->WEAPON_DRAW();
-			s->DRAW_TOTAL_SCORE();
+
+			s->DRAW_TOTAL_SCORE();	//トータルスコアを描画
 
 
 			//制限時間の設定
@@ -250,12 +281,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			//制限時間が0秒になったら
 			if (LIMIT_TIME - (Get_Time - GAME_TITLE_ELAPSEDTIME) / 1000 <= PLAY_END_TIME)
 			{
-				screen_state = GAME_END;
+				screen_state = GAME_END;	//エンド画面へ遷移する
 			}
 
+
+
+			break;
+
+		case GAME_CLEAR:		//ゲームクリア画面
+			DrawExtendGraph(0, 0, GAME_WIDTH, GAME_HEIGHT, imgBack_CLEAR, false);
+			GAME_CLEAR_DRAW();
 			break;
 		
-		case GAME_END:
+		case GAME_END:			//ゲームエンド画面
 
 			//エンド画面の背景画像を描画する
 			DrawExtendGraph(0, 0, GAME_WIDTH, GAME_HEIGHT, imgBack_End, false);		
@@ -278,26 +316,26 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	//delete w;
 	for (int w_cnt = 0; w_cnt < WEAPON_NUM; w_cnt++)
 	{
-		delete w[w_cnt];
+		delete w[w_cnt];		//WEAPONクラスの解放
 	}
 	for (int e_num = 0; e_num < ENEMY_NUM; e_num++)
 	{
 		delete e[e_num];		//ENEMYクラスの解放
 	}
-	DxLib_End();			//ＤＸライブラリ使用の終了処理
+	DxLib_End();				//ＤＸライブラリ使用の終了処理
 
-	return 0;				// ソフトの終了 
+	return 0;					// ソフトの終了 
 }
 
 //タイトル画面を描画する関数
 void GAME_TITLE_DRAW() 
 {
-	DrawString(0, 0, "タイトル　エンターでプレイ画面へ", RGB(255, 255, 255));
+	DrawString(0, 0, "タイトル　エンターでプレイ画面へ", RGB(255, 255, 255));	//エンター画面へ遷移する条件を描画
 
 	//エンターキーが押されたら
 	if (Keyboard_Get(KEY_INPUT_RETURN) == 1)
 	{
-		screen_state = GAME_PLAY;		//プレイ画面へ遷移する
+		screen_state = GAME_PLAY;					//プレイ画面へ遷移する
 		GAME_TITLE_ELAPSEDTIME = Get_Time;			//プレイ画面へ遷移するとき、タイトル画面でかかった時間を変数に入れる
 	}	
 }
@@ -305,13 +343,41 @@ void GAME_TITLE_DRAW()
 //プレイ画面を描画する関数
 void GAME_PLAY_DRAW()
 {
-	DrawString(0, 0, "プレイ スペースでエンド画面へ", RGB(255, 255, 255));
+	DrawString(0, 0, "プレイ スペースでエンド画面へ", RGB(255, 255, 255));		//エンド画面へ遷移する条件を描画
 
 	//スペースキーが押されたら
 	if (Keyboard_Get(KEY_INPUT_SPACE) == 1)
 	{
 		screen_state = GAME_END;		//エンド画面へ遷移する
 	}
+
+	//トータルスコア
+	if (s->total_score  >= GAME_CLEAR_SCORE)
+	{
+		screen_state = GAME_CLEAR;		//エンド画面へ遷移する
+	}
+}
+
+//クリア画面を描画する関数
+void GAME_CLEAR_DRAW() 
+{
+	DrawString(0, 0, "クリア　バックスペースでタイトル画面へ", RGB(255, 255, 255));
+
+	//バックスペースキーが押されたら
+	if (Keyboard_Get(KEY_INPUT_BACK) == 1)
+	{
+		screen_state = GAME_TITLE;		//タイトル画面へ遷移する
+	}
+
+	DrawString(0, 50, "エンド　エスケープキーでゲーム終了", RGB(255, 255, 255));
+
+	//エスケープキーが押されたら
+	if (Keyboard_Get(KEY_INPUT_ESCAPE) == 1)
+	{
+		DxLib_End();					//ゲーム終了
+	}
+
+	s->DRAW_TOTAL_SCORE();
 }
 
 //エンド画面を描画する関数
@@ -338,6 +404,7 @@ void GAME_END_DRAW()
 //プレイヤーとエネミーの衝突判定
 void PLAYER::PLAYER_COLLISION_ENEMY(int ENEMY_X, int ENEMY_Y)
 {
+	//エネミーの数に応じて繰り返す
 	for (int e_num = 0; e_num < ENEMY_NUM; e_num++)
 	{
 		//キャラとエネミーの当たり判定
@@ -355,7 +422,7 @@ void PLAYER::PLAYER_COLLISION_ENEMY(int ENEMY_X, int ENEMY_Y)
 		}
 	}
 
-	DrawFormatString(0, 50, RGB(255, 255, 255), "PLAYER：%d", p->PLAYER_HP);
+	DrawFormatString(0, 50, RGB(255, 255, 255), "PLAYER：%d", p->PLAYER_HP);	//プレイヤーの体力を描画する
 
 	//プレイヤーの体力が0以下なら
 	if (p->PLAYER_HP <= 0)
@@ -374,12 +441,12 @@ int WEAPON::Get_WEAPON_X()
 {
 	if (Keyboard_Get(KEY_INPUT_A) >= 1)
 	{
-		WEAPON_flag_X = true;		//A	キーを押したとき、プレイヤーのX座標を取得するためのフラグ
+		WEAPON_flag_X = true;		//A	キーを押したとき、ウエポンのXフラグをtrueにする (ウエポンのX座標をプレイヤーのX座標と同じにする)
 	}
 
 	if (WEAPON_flag_X == false)
 	{
-		WEAPON_X = p->PLAYER_X;
+		WEAPON_X = p->PLAYER_X;		//ウエポンのXフラグがfalseのとき、ウエポンのX座標をプレイヤーのX座標と同じにする
 	}
 	return WEAPON_X;
 };
@@ -401,9 +468,9 @@ int WEAPON::Get_WEAPON_Y()
 			//}
 		}
 
-		if (WEAPON_flag_X == false)
+		if (WEAPON_flag_Y == false)
 		{
-			WEAPON_Y = p->PLAYER_Y;
+			WEAPON_Y = p->PLAYER_Y;		//ウエポンのYフラグがfalseのとき、ウエポンのY座標をプレイヤーのY座標と同じにする
 		}
 
 		//A キーを押したとき、自動でY座標を加算するためのフラグ
@@ -419,7 +486,7 @@ int WEAPON::Get_WEAPON_Y()
 				//ウエポンのX座標をプレイヤーのX座標と同じ値にする
 				w[w_cnt]->WEAPON_X = p->PLAYER_X;
 
-
+				///ウエポンのXフラグをfalseに変更する
 				w[w_cnt]->WEAPON_flag_X = false;
 			}
 
@@ -442,6 +509,7 @@ int WEAPON::Get_WEAPON_Y()
 					w[w_cnt]->WEAPON_Y = p->PLAYER_Y;
 					w[w_cnt]->WEAPON_X = p->PLAYER_X;
 
+					//ウエポンのYフラグをfalseに変更する
 					w[w_cnt]->WEAPON_flag_Y = false;
 				}
 			}
@@ -465,17 +533,29 @@ void WEAPON::WEAPON_COLLISION_ENEMY(int ENEMY_X, int ENEMY_Y)
 				{
 					//ウエポンに触れたエネミーの位置や画像の添え字をリセットする
 					e[e_num]->ENEMY_RESET();
+					e[e_num]->ENEMY_EXPROSION_flag = true;
 
 					w[w_cnt]->WEAPON_flag_X = false;		//A	キーを押したとき、プレイヤーのX座標を取得するためのフラグ
 					w[w_cnt]->WEAPON_flag_Y = false;		//A キーを押したとき、自動でY座標を加算するためのフラグ
 
+					//爆発フラグがtureのとき
+					if (e[e_num]->ENEMY_EXPROSION_flag = true)
+					{
+						
+						//エネミーのアニメーション用カウント
+						e[e_num]->ENEMY_COUNT++;
+						//爆発アニメーション
+						e[e_num]->ENEMY_ANIMATION_soeji = e[e_num]->ENEMY_ANIMATION_soeji + (e[e_num]->ENEMY_COUNT / ANIMATION_FRAME) % ANIMETION_PATTERN;
+						//爆発フラグをfalseにする
+						//e[e_num]->ENEMY_EXPROSION_flag = false;
+						
+					}
 					//ウエポンのY座標をプレイヤーのY座標から、ウエポン画像サイズから分割し、引いた値にする
 					//(ウエポンの画像をプレイヤーの頭上に配置するため)
 					//w[w_cnt]->WEAPON_Y = p->Get_PLAYER_Y() - (WEAPON_Size_H / WEAPON_BUNKATU_Y);
 					w[w_cnt]->WEAPON_Y = p->Get_PLAYER_Y();
-					s->TOTAL_SCORE();
 
-
+					s->TOTAL_SCORE();		//獲得したスコアを保持し、計算する関数
 				}
 			}
 		}
@@ -513,7 +593,7 @@ int ENEMY::Get_ENEMY_Y()
 		{	
 			e[e_num]->ENEMY_Y = GAME_MIN_HEIGHT - ENEMY_Size_H / ENEMY_BUNKATU_Y;
 			e[e_num]->ENEMY_X = WINDOW_WIDTH_RANDOM_ENEMY_X();
-			RANDOM_soeji = RANDOM();	
+			RANDOM_soeji = RANDOM();	//エネミーが画面下までいったら、エネミーの添え字を乱数で設定する
 			//ENEMY_flag = false;
 		}
 	}
@@ -528,21 +608,21 @@ void DIFFICULTY::DIFFICULTY_LEVEL_PLAY()
 	//Easy　残機3
 	if (Keyboard_Get(KEY_INPUT_RETURN) == 1 && Lv_Select == 0)
 	{
-		p->PLAYER_HP = 3;
+		p->PLAYER_HP = 3;			//プレイヤーの残機を変更
 		screen_state = GAME_PLAY;	//シーンをゲーム画面に変更
 	}
 
 	//Normal　残機2
 	if (Keyboard_Get(KEY_INPUT_RETURN) == 1 && Lv_Select == 1)
 	{
-		p->PLAYER_HP = 2;
+		p->PLAYER_HP = 2;			//プレイヤーの残機を変更
 		screen_state = GAME_PLAY;	//シーンをゲーム画面に変更
 	}
 
 	//Hard　残機1
 	if (Keyboard_Get(KEY_INPUT_RETURN) == 1 && Lv_Select == 2)
 	{
-		p->PLAYER_HP = 1;
+		p->PLAYER_HP = 1;			//プレイヤーの残機を変更
 		screen_state = GAME_PLAY;	//シーンをゲーム画面に変更
 	}
 }
