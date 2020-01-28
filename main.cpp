@@ -24,6 +24,9 @@
 #define LIMIT_TIME 60 //制限時間 
 #define PLAY_END_TIME 0 //終了時間
 
+#define PLAY_MUSIC "MUSIC\\crying again.mp3"		//ミュージックを取り込む
+#define COLISION_MUSIC "MUSIC\\colision.mp3"		//ミュージックを取り込む
+
 
 
 //各画面を設定
@@ -54,6 +57,7 @@ SCORE *s = new SCORE();					//スコアのオブジェクトを生成
 DIFFICULTY *Difficulty_Level = new DIFFICULTY();		//難易度変更を設定するクラスを生成する
 CLEARCONDITION *ClearCondition_Level = new CLEARCONDITION();
 
+//************************画像のサイズを取得する変数**************************************
 extern int PLAYER_Size;						//プレイヤー画像のサイズをLoadDivGrahpで取得するため(PLAYER.cppでも同じ変数を利用するため、externを使用している)
 extern int PLAYER_Size_W, PLAYER_Size_H;	//プレイヤー画像の横サイズ、縦サイズを取得			(PLAYER.cppでも同じ変数を利用するため、externを使用している)
 extern int ENEMY_Size;						//エネミー画像のサイズをLoadDivGrahpで取得するため	(ENEMY.cppでも同じ変数を利用するため、externを使用している)
@@ -65,12 +69,35 @@ extern int ENEMY_ANIMATION_Size;						//エネミー画像のサイズをLoadDivGrahpで取得
 extern int ENEMY_ANIMATION_Size_W, ENEMY_ANIMATION_Size_H;		//エネミー画像の横サイズ、縦サイズを取得	(ENEMY.cppでも同じ変数を利用するため、externを使用している)
 
 int img_Back_Play_W, img_Back_Play_H;		//プレイ画面の縦スクロール背景 横サイズと縦サイズを保持する変数
+//*******************************************************************************************
 
 
+//**********************背景画像をロードする変数**************************
+int imgBack_Title = 0;
+int imgTitle_log = 0;
+int imgBack_Play = 0;
+int imgBack_End = 0;
+int imgBack_Clear = 0;
+//************************************************************************
+
+
+//**********************時間を取得する変数**************************
 int GAME_TITLE_ELAPSEDTIME; //プレイ画面に遷移するまでの時間を計測
 int Get_WEAPON_Time;
 int Get_Collision_Time;		//エネミーがウエポンにあたった時間を取得する
 int Get_Time = 0;			//GetNowCount()用の変数：起動したら時間を計測する
+//*******************************************************************
+
+//****************音を鳴らす変数********************
+int MUSIC_Handle = 0;
+int MUSIC_COLISION_Handle = 0;
+//**************************************************
+
+//***************文字を描画する変数*****************
+int FontHandle_LV_SELECT = 0;
+int FontHandle_ClearCondition_SELECT = 0;
+int FontHandle_LIMIT = 0;
+//**************************************************
 
 //GetNowCount()は起動してから時間を計測するため、プレイ画面に遷移するまでの掛かった時間を引く必要がある
 //GetNowCount() - timerstart = プレイ画面になったら時間を計測する
@@ -147,32 +174,36 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	//GetGraphSize(e[0]->ENEMY_ANIMATION_Handle[0], &ANIMATION_BUNKATU_SIZE_X, &ANIMATION_BUNKATU_SIZE_Y);	//プレイヤー画像の縦と横のサイズを取得
 
 	//タイトル画面の背景の画像を読み込む
-	int imgBack_Title = LoadGraph(GAME_BackImage_TITLE);		//タイトル背景画像を読み込む(*注意：while文で読み込むとFPSが低下する[毎回読み込んでしまうため])
+	imgBack_Title = LoadGraph(GAME_BackImage_TITLE);		//タイトル背景画像を読み込む(*注意：while文で読み込むとFPSが低下する[毎回読み込んでしまうため])
 	//タイトルロゴの画像を読み込む
-	int imgTitle_log = LoadGraph(GAME_TITLE_LOG);				//タイトルロゴ画像を読み込む(*注意：while文で読み込むとFPSが低下する[毎回読み込んでしまうため])
+	imgTitle_log = LoadGraph(GAME_TITLE_LOG);				//タイトルロゴ画像を読み込む(*注意：while文で読み込むとFPSが低下する[毎回読み込んでしまうため])
 	
 	//プレイ画面の背景画像を読み込む
-	int imgBack_Play = LoadGraph(GAME_BackImage_PLAY);			//プレイ背景画像を読み込む(*注意：while文で読み込むとFPSが低下する[毎回読み込んでしまうため])
+	imgBack_Play = LoadGraph(GAME_BackImage_PLAY);			//プレイ背景画像を読み込む(*注意：while文で読み込むとFPSが低下する[毎回読み込んでしまうため])
 
 	//クリア画面の背景画像を読み込む
-	int	imgBack_CLEAR = LoadGraph(GAME_BackImage_CLEAR);		//クリア背景画像を読み込む(*注意：while文で読み込むとFPSが低下する[毎回読み込んでしまうため])
+	imgBack_Clear = LoadGraph(GAME_BackImage_CLEAR);		//クリア背景画像を読み込む(*注意：while文で読み込むとFPSが低下する[毎回読み込んでしまうため])
 
 	//エンド画面の背景画像を読み込む
-	int	imgBack_End = LoadGraph(GAME_BackImage_END);			//エンド背景画像を読み込む(*注意：while文で読み込むとFPSが低下する[毎回読み込んでしまうため])
+	imgBack_End = LoadGraph(GAME_BackImage_END);			//エンド背景画像を読み込む(*注意：while文で読み込むとFPSが低下する[毎回読み込んでしまうため])
 	
 	//難易度変更用のフォントハンドルを作成
-	int FontHandle_LV_SELECT = CreateFontToHandle(NULL, 70, 3);	//文字の大きさ変更
+	FontHandle_LV_SELECT = CreateFontToHandle(NULL, 70, 3);	//文字の大きさ変更
 
 	//クリア条件変更用のフォントハンドルを作成
-	int FontHandle_ClearCondition_SELECT = CreateFontToHandle(NULL, 40, 3);	//文字の大きさ変更
+	FontHandle_ClearCondition_SELECT = CreateFontToHandle(NULL, 40, 3);	//文字の大きさ変更
 
 	//制限時間用のフォントハンドルを作成
-	int FontHandle_LIMIT = CreateFontToHandle(NULL, 60, 3);		//文字の大きさ変更
+	FontHandle_LIMIT = CreateFontToHandle(NULL, 60, 3);		//文字の大きさ変更
 
-	
-	
+	 //マクロで定義した音楽ファイルをロードし、識別番号をMUSIC_Handleに格納する
+	MUSIC_Handle = LoadSoundMem(PLAY_MUSIC);
 
-	while (TRUE)	//無限ループ
+	//マクロで定義した音楽ファイルをロードし、識別番号をMUSIC_COLISION_Handleに格納する
+	MUSIC_COLISION_Handle = LoadSoundMem(COLISION_MUSIC);
+
+	//無限ループ
+	while (TRUE)
 	{
 		if (ProcessMessage() != 0) { break; }	//メッセージ処理の結果がエラーのとき、強制終了
 
@@ -190,12 +221,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		{
 		case GAME_TITLE:		//ゲームタイトル画面
 
-			//タイトル画像の背景画像を描画する
-			DrawExtendGraph(0, 0, GAME_WIDTH, GAME_HEIGHT, imgBack_Title, false);
-
-			//タイトルロゴの画像を描画する
-			DrawExtendGraph(GAME_TITLE_LOG_UPPERLEFT_X, GAME_TITLE_LOG_UPPERLEFT_Y, GAME_TITLE_LOG_BOTTOMLEFT_X, GAME_TITLE_LOG_BOTTOMLEFT_Y, imgTitle_log, true);
-
 			GAME_TITLE_DRAW();	//タイトル画面を描画
 
 			p->PLAYER_RESET();	//プレイヤーを初期位置へ
@@ -206,41 +231,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				w[w_cnt]->WEAPON_RESET();	//ウエポンを初期位置へ
 			}
 
-			DrawFormatStringToHandle(100, 400, GetColor(255, 0, 255), FontHandle_LV_SELECT, "難易度：%s",Difficulty_Level->Lv);	//難易度を描画する関数
-			DrawFormatStringToHandle(0, 200, GetColor(0, 0, 255), FontHandle_ClearCondition_SELECT, "%s", ClearCondition_Level->ClearCondition);
-
-			ClearCondition_Level->CLEAR_CONDITION_SELECT_TITLE();
-
-			ClearCondition_Level->CLEAR_CONDITION_SELECT_PLAY();
-
-			Difficulty_Level->DIFFICULTY_LEVEL_TITLE();	//プレイ画面でEasy,Normal,Hardを変更し、値を保持する関数
-
-			Difficulty_Level->DIFFICULTY_LEVEL_PLAY();	//プレイ画面でEasy,Normal,Hardを変更した値を基に難易度変更を実施する関数
-
 			s->SCORE_RESET();		//スコアのリセットする関数
 
 			break;
 
 		case GAME_PLAY:				//ゲームプレイ画面
-
-			//////////////////////スクロール処理/////////////////
-			//プレイ画面の背景画像を描画する(１枚目)
-			DrawExtendGraph(img_Back_Play_W, img_Back_Play_H, GAME_WIDTH, GAME_HEIGHT + img_Back_Play_H, imgBack_Play, false);
-
-			//プレイ画面の背景画像を描画する(２枚目スクロール用)
-			DrawExtendGraph(img_Back_Play_W, img_Back_Play_H - GAME_HEIGHT, GAME_WIDTH, img_Back_Play_H, imgBack_Play, false);
-
-			//２枚目の画像のスクロールが終わるまで加算する
-			if (img_Back_Play_H < GAME_HEIGHT)
-			{
-				img_Back_Play_H += 5;
-			}
-			//２枚目の画像のスクロールが終わったらリセットする
-			else
-			{
-				img_Back_Play_H = 0;
-			}
-			///////////////////////////////////////////////////////////////////////////
 
 			GAME_PLAY_DRAW();	//プレイ画面を描画
 
@@ -302,21 +297,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			//制限時間の設定
 			DrawFormatStringToHandle(500, 0, GetColor(255, 255, 255), FontHandle_LIMIT, "LIMIT_TIME：%d秒", (LIMIT_TIME - (Get_Time - GAME_TITLE_ELAPSEDTIME) / 1000));	//文字の大きさ変更);
 
-			
-
+			//クリア条件の変更
 			DrawExtendGraph(0, 0, GAME_WIDTH, GAME_HEIGHT, ClearCondition_Level->TimeMode_Play_flag, false);
 
 			break;
 
 		case GAME_CLEAR:		//ゲームクリア画面
-			DrawExtendGraph(0, 0, GAME_WIDTH, GAME_HEIGHT, imgBack_CLEAR, false);
 			GAME_CLEAR_DRAW();
 			break;
 		
 		case GAME_END:			//ゲームエンド画面
-
-			//エンド画面の背景画像を描画する
-			DrawExtendGraph(0, 0, GAME_WIDTH, GAME_HEIGHT, imgBack_End, false);		
 			GAME_END_DRAW();	//エンド画面を描画
 			break;
 
@@ -350,20 +340,71 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 //タイトル画面を描画する関数
 void GAME_TITLE_DRAW() 
 {
-	DrawString(0, 0, "タイトル　エンターでプレイ画面へ", RGB(255, 255, 255));	//エンター画面へ遷移する条件を描画
+	//タイトル画像の背景画像を描画する
+	DrawExtendGraph(0, 0, GAME_WIDTH, GAME_HEIGHT, imgBack_Title, false);
+
+	//タイトルロゴの画像を描画する
+	DrawExtendGraph(GAME_TITLE_LOG_UPPERLEFT_X, GAME_TITLE_LOG_UPPERLEFT_Y, GAME_TITLE_LOG_BOTTOMLEFT_X, GAME_TITLE_LOG_BOTTOMLEFT_Y, imgTitle_log, true);
+
+	//エンター画面へ遷移する条件を描画
+	DrawString(0, 0, "タイトル　エンターでプレイ画面へ", RGB(255, 255, 255));
+
+	DrawFormatStringToHandle(100, 400, GetColor(255, 0, 255), FontHandle_LV_SELECT, "難易度：%s", Difficulty_Level->Lv);	//難易度を描画する関数
+	DrawFormatStringToHandle(0, 200, GetColor(0, 0, 255), FontHandle_ClearCondition_SELECT, "%s", ClearCondition_Level->ClearCondition);
+
+	//タイトル画面でクリア条件を変更し、値を保持する関数
+	ClearCondition_Level->CLEAR_CONDITION_SELECT_TITLE();
+
+	//タイトル画面でEasy,Normal,Hardを変更した値を基に難易度変更を実施する関数
+	ClearCondition_Level->CLEAR_CONDITION_SELECT_PLAY();
+
+	//タイトル画面でEasy,Normal,Hardを変更し、値を保持する関数
+	Difficulty_Level->DIFFICULTY_LEVEL_TITLE();	
+
+	//タイトル画面でEasy,Normal,Hardを変更した値を基に難易度変更を実施する関数
+	Difficulty_Level->DIFFICULTY_LEVEL_PLAY();	
+
+	//プレイ画面に遷移したら音楽ファイルを鳴らす(DX_PLAYTYPE_LOOP:最後まで音楽ファイルを鳴らしたら、初めからまた鳴らす)
+	PlaySoundMem(MUSIC_Handle, DX_PLAYTYPE_LOOP);
 
 	//エンターキーが押されたら
 	if (Keyboard_Get(KEY_INPUT_RETURN) == 1)
 	{
-		screen_state = GAME_PLAY;					//プレイ画面へ遷移する
-		GAME_TITLE_ELAPSEDTIME = Get_Time;			//プレイ画面へ遷移するとき、タイトル画面でかかった時間を変数に入れる
+		//プレイ画面へ遷移する
+		screen_state = GAME_PLAY;
+
+		//プレイ画面へ遷移するとき、タイトル画面でかかった時間を変数に入れる
+		GAME_TITLE_ELAPSEDTIME = Get_Time;
 	}	
 }
 
 //プレイ画面を描画する関数
 void GAME_PLAY_DRAW()
 {
-	DrawString(0, 0, "プレイ スペースでエンド画面へ", RGB(255, 255, 255));		//エンド画面へ遷移する条件を描画
+
+	//////////////////////スクロールする背景を描画する処理/////////////////
+	//プレイ画面の背景画像を描画する(１枚目)
+	DrawExtendGraph(img_Back_Play_W, img_Back_Play_H, GAME_WIDTH, GAME_HEIGHT + img_Back_Play_H, imgBack_Play, false);
+
+	//プレイ画面の背景画像を描画する(２枚目スクロール用)
+	DrawExtendGraph(img_Back_Play_W, img_Back_Play_H - GAME_HEIGHT, GAME_WIDTH, img_Back_Play_H, imgBack_Play, false);
+	///////////////////////////////////////////////////////////////////////////
+
+	//エンド画面へ遷移する条件を描画
+	DrawString(0, 0, "プレイ スペースでエンド画面へ", RGB(255, 255, 255));
+
+	//***********************スクロール処理***********************
+	//２枚目の画像のスクロールが終わるまで加算する
+	if (img_Back_Play_H < GAME_HEIGHT)
+	{
+		img_Back_Play_H += 5;
+	}
+	//２枚目の画像のスクロールが終わったらリセットする
+	else
+	{
+		img_Back_Play_H = 0;
+	}
+	//**************************************************************
 
 	//制限時間が0秒になったら(スコアモードのとき)
 	if (LIMIT_TIME - (Get_Time - GAME_TITLE_ELAPSEDTIME) / 1000 <= PLAY_END_TIME && ClearCondition_Level->ScoreMode_Play_flag == true)
@@ -395,6 +436,8 @@ void GAME_PLAY_DRAW()
 //クリア画面を描画する関数
 void GAME_CLEAR_DRAW() 
 {
+	DrawExtendGraph(0, 0, GAME_WIDTH, GAME_HEIGHT, imgBack_Clear, false);
+
 	DrawString(0, 0, "クリア　バックスペースでタイトル画面へ", RGB(255, 255, 255));
 
 	//バックスペースキーが押されたら
@@ -417,8 +460,11 @@ void GAME_CLEAR_DRAW()
 //エンド画面を描画する関数
 void GAME_END_DRAW()
 {
-	DrawString(0, 0, "エンド　バックスペースでタイトル画面へ", RGB(255, 255, 255));
 
+	//エンド画面の背景画像を描画する
+	DrawExtendGraph(0, 0, GAME_WIDTH, GAME_HEIGHT, imgBack_End, false);
+
+	DrawString(0, 0, "エンド　バックスペースでタイトル画面へ", RGB(255, 255, 255));
 
 	//バックスペースキーが押されたら
 	if (Keyboard_Get(KEY_INPUT_BACK) == 1)
@@ -587,6 +633,7 @@ void WEAPON::WEAPON_COLLISION_ENEMY(int ENEMY_X, int ENEMY_Y)
 					((w[w_cnt]->WEAPON_Y > e[e_num]->ENEMY_Y && w[w_cnt]->WEAPON_Y < e[e_num]->ENEMY_Y + ENEMY_Size_H / ENEMY_BUNKATU_Y) ||
 					(e[e_num]->ENEMY_Y > w[w_cnt]->WEAPON_Y && e[e_num]->ENEMY_Y < w[w_cnt]->WEAPON_Y + WEAPON_Size_H / WEAPON_BUNKATU_Y)))
 				{
+					PlaySoundMem(MUSIC_COLISION_Handle, DX_PLAYTYPE_BACK);
 					//ウエポンに触れたエネミーの位置や画像の添え字をリセットする
 					e[e_num]->ENEMY_RESET();
 
@@ -651,37 +698,38 @@ int ENEMY::Get_ENEMY_Y()
 void DIFFICULTY::DIFFICULTY_LEVEL_PLAY()
 {
 	//Easy　残機3
-	if (Keyboard_Get(KEY_INPUT_RETURN) == 1 && Lv_Select == 0)
+	if (Keyboard_Get(KEY_INPUT_RETURN) == 1 && Lv_Select == Lv_Select_MIN)
 	{
 		p->PLAYER_HP = 3;			//プレイヤーの残機を変更
 		screen_state = GAME_PLAY;	//シーンをゲーム画面に変更
 	}
 
 	//Normal　残機2
-	if (Keyboard_Get(KEY_INPUT_RETURN) == 1 && Lv_Select == 1)
+	if (Keyboard_Get(KEY_INPUT_RETURN) == 1 && Lv_Select == Lv_Select_NORMAL)
 	{
 		p->PLAYER_HP = 2;			//プレイヤーの残機を変更
 		screen_state = GAME_PLAY;	//シーンをゲーム画面に変更
 	}
 
 	//Hard　残機1
-	if (Keyboard_Get(KEY_INPUT_RETURN) == 1 && Lv_Select == 2)
+	if (Keyboard_Get(KEY_INPUT_RETURN) == 1 && Lv_Select == Lv_Select_MAX)
 	{
 		p->PLAYER_HP = 1;			//プレイヤーの残機を変更
 		screen_state = GAME_PLAY;	//シーンをゲーム画面に変更
 	}
 }
 
+//クリア条件を変更(タイム制かスコア制か)する関数
 void CLEARCONDITION::CLEAR_CONDITION_SELECT_PLAY()
 {
-	if (Keyboard_Get(KEY_INPUT_RETURN) == 1 && ClearCondition_Select == 0)
+	if (Keyboard_Get(KEY_INPUT_RETURN) == 1 && ClearCondition_Select == ClearCondition_Select_TIME)
 	{
 		TimeMode_Play_flag = true;
 		ScoreMode_Play_flag = false;
 		screen_state = GAME_PLAY;	//シーンをゲーム画面に変更
 	}
 
-	if (Keyboard_Get(KEY_INPUT_RETURN) == 1 && ClearCondition_Select == 1)
+	if (Keyboard_Get(KEY_INPUT_RETURN) == 1 && ClearCondition_Select == ClearCondition_Select_SCORE)
 	{
 		TimeMode_Play_flag = false;
 		ScoreMode_Play_flag = true;

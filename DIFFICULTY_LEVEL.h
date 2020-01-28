@@ -1,5 +1,12 @@
 #pragma once
 
+#define Lv_Select_MIN 0			//難易度変更の最小値(EASY)
+#define Lv_Select_NORMAL 1		//難易度変更の値(１：Normal)
+#define Lv_Select_MAX 2			//難易度変更の最大値(HARD)
+
+#define ClearCondition_Select_TIME  0 	//クリア条件がタイム制のときの値(０：タイム制)
+#define ClearCondition_Select_SCORE 1	//クリア条件がスコア制のときの値(１：スコア制)
+
 //難易度変更用クラス
 class DIFFICULTY
 {
