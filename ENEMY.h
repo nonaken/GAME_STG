@@ -26,6 +26,8 @@
 #define ENEMY_ANIMATION_FRAME		20
 #define ENEMY_ANIMATION_PATTERN		3
 
+
+
 class ENEMY
 {
 private:

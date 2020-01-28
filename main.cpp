@@ -1,3 +1,4 @@
+//*******************インクルード*************
 #include "DxLib.h"
 #include "Keyboard_Get.h"
 #include "PLAYER.h"
@@ -7,7 +8,9 @@
 #include "WINDOW_SIZE.h"
 #include "FPS.h"
 #include "DIFFICULTY_LEVEL.h"
+//******************************************
 
+//***********************マクロ定義******************************************************************
 #define GAME_BackImage_TITLE	"BackImage\\kaidou0331_800b.jpg"	//タイトル画面背景画像
 #define GAME_TITLE_LOG			"BackImage\\game_title_font.png"	//タイトルロゴ
 #define GAME_BackImage_PLAY		"BackImage\\背景_1.png"				//プレイ画面背景画像
@@ -26,9 +29,9 @@
 
 #define PLAY_MUSIC "MUSIC\\crying again.mp3"		//ミュージックを取り込む
 #define COLISION_MUSIC "MUSIC\\colision.mp3"		//ミュージックを取り込む
+//*****************************************************************************************************
 
-
-
+//****************列挙型************:
 //各画面を設定
 enum GAME_SCREEN
 {
@@ -37,17 +40,19 @@ enum GAME_SCREEN
 	GAME_CLEAR,	//クリア画面
 	GAME_END	//エンド画面
 };
+//****************************************
 
 //ゲーム画面の遷移を管理する
 GAME_SCREEN screen_state = GAME_TITLE;	//画面遷移をコントロールする(最初の画面はタイトル画面)
 
-//プロトタイプ宣言
+//*************************************プロトタイプ宣言******************************
 void GAME_TITLE_DRAW();		//タイトル画面を描画
 void GAME_PLAY_DRAW();		//プレイ画面を描画
 void GAME_CLEAR_DRAW();		//クリア画面を描画
 void GAME_END_DRAW();		//エンド画面を描画
+//*************************************************************************************
 
-
+//*****************クラス*********************************************
 FPS *fps = new FPS(GAME_FPS_SPEED);		//FPSクラスのオブジェクトを生成
 PLAYER *p = new PLAYER();				//プレイヤーのオブジェクトを生成する
 //WEAPON *w = new WEAPON();				//ウエポンのオブジェクトを生成する
@@ -56,6 +61,7 @@ ENEMY *e[ENEMY_NUM];					//エネミークラスを３つ生成する
 SCORE *s = new SCORE();					//スコアのオブジェクトを生成
 DIFFICULTY *Difficulty_Level = new DIFFICULTY();		//難易度変更を設定するクラスを生成する
 CLEARCONDITION *ClearCondition_Level = new CLEARCONDITION();
+//********************************************************************
 
 //************************画像のサイズを取得する変数**************************************
 extern int PLAYER_Size;						//プレイヤー画像のサイズをLoadDivGrahpで取得するため(PLAYER.cppでも同じ変数を利用するため、externを使用している)
@@ -86,6 +92,10 @@ int GAME_TITLE_ELAPSEDTIME; //プレイ画面に遷移するまでの時間を計測
 int Get_WEAPON_Time;
 int Get_Collision_Time;		//エネミーがウエポンにあたった時間を取得する
 int Get_Time = 0;			//GetNowCount()用の変数：起動したら時間を計測する
+
+//GetNowCount()は起動してから時間を計測するため、プレイ画面に遷移するまでの掛かった時間を引く必要がある
+//GetNowCount() - timerstart = プレイ画面になったら時間を計測する
+
 //*******************************************************************
 
 //****************音を鳴らす変数********************
@@ -99,8 +109,7 @@ int FontHandle_ClearCondition_SELECT = 0;
 int FontHandle_LIMIT = 0;
 //**************************************************
 
-//GetNowCount()は起動してから時間を計測するため、プレイ画面に遷移するまでの掛かった時間を引く必要がある
-//GetNowCount() - timerstart = プレイ画面になったら時間を計測する
+
 
 // プログラムは WinMain から始まります
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
@@ -724,15 +733,15 @@ void CLEARCONDITION::CLEAR_CONDITION_SELECT_PLAY()
 {
 	if (Keyboard_Get(KEY_INPUT_RETURN) == 1 && ClearCondition_Select == ClearCondition_Select_TIME)
 	{
-		TimeMode_Play_flag = true;
-		ScoreMode_Play_flag = false;
+		TimeMode_Play_flag = true;		//タイム制フラグ:ON
+		ScoreMode_Play_flag = false;	//スコア制フラグ:OFF
 		screen_state = GAME_PLAY;	//シーンをゲーム画面に変更
 	}
 
 	if (Keyboard_Get(KEY_INPUT_RETURN) == 1 && ClearCondition_Select == ClearCondition_Select_SCORE)
 	{
-		TimeMode_Play_flag = false;
-		ScoreMode_Play_flag = true;
+		TimeMode_Play_flag = false;		//タイム制フラグ:OFF
+		ScoreMode_Play_flag = true;		//スコア制フラグ:ON
 		screen_state = GAME_PLAY;	//シーンをゲーム画面に変更
 	}
 }

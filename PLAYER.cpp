@@ -3,8 +3,7 @@
 #include "Keyboard_Get.h"
 #include "WINDOW_SIZE.h"
 
-int PLAYER_Size;					//プレイヤーの画像サイズをLoadDivGrahpで取得するため
-int PLAYER_Size_W, PLAYER_Size_H;	//プレイヤー画像の横サイズ、縦サイズを取得
+
 
 #define PLAYER_DOWN_SOEJI 0			//下向きの画像
 #define PLAYER_UP_SOEJI 9			//上向きの画像
@@ -13,6 +12,13 @@ int PLAYER_Size_W, PLAYER_Size_H;	//プレイヤー画像の横サイズ、縦サイズを取得
 
 #define PLAYER_ANIMATION_FRAME 5			//アニメーションの描画を切り替えるフレーム数
 #define PLAYER_ANIMETION_PATTERN 3			//アニメーションの種類
+
+int PLAYER_Size;					//プレイヤーの画像サイズをLoadDivGrahpで取得するため
+int PLAYER_Size_W, PLAYER_Size_H;	//プレイヤー画像の横サイズ、縦サイズを取得
+
+
+
+
 
 //プレイヤーのスピードを取得する関数
 int PLAYER::Get_PLAYER_Speed()
@@ -115,4 +121,3 @@ void PLAYER::PLAYER_RESET()
 	PLAYER_X = GAME_WIDTH / PLAYER_X_HALF;
 	PLAYER_Y = GAME_HEIGHT / PLAYER_Y_HALF;
 }
-

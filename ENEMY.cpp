@@ -9,8 +9,6 @@ int ENEMY_Size_W, ENEMY_Size_H;		//エネミーの画像の横サイズ、縦サイズを取得
 int ENEMY_ANIMATION_Size;						//エネミー画像のサイズをLoadDivGrahpで取得するため	(ENEMY.cppでも同じ変数を利用するため、externを使用している)
 int ENEMY_ANIMATION_Size_W, ENEMY_ANIMATION_Size_H;		//エネミー画像の横サイズ、縦サイズを取得	(ENEMY.cppでも同じ変数を利用するため、externを使用している)
 
-
-
 //エネミーの添え字を乱数で生成する関数(乱数はメルセンヌ・ツイスタを使用)
 int ENEMY::RANDOM()
 {

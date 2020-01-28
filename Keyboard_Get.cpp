@@ -2,9 +2,6 @@
 
 int m_Key[256];  // キーの入力状態格納用変数
 
-
-
-
 // キーの入力状態更新
 int Keyboard_Update() {
 
