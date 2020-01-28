@@ -2,7 +2,7 @@
 
 #include"WINDOW_SIZE.h"
 
-#define GAME_PLAYER "animals\\$yaksaddle.png"//"PLAYER\\player_縮小.png"
+#define GAME_PLAYER "animals\\プレイヤー2倍.png"//"animals\\$yaksaddle.png"//"PLAYER\\player_縮小.png"
 #define PLAYER_BUNKATU	12			//プレイヤー画像の総分割数
 #define PLAYER_BUNKATU_X 3//3		//プレイヤー画像の横分割数
 #define PLAYER_BUNKATU_Y 4//4		//プレイヤー画像の縦分割数

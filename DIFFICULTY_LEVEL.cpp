@@ -14,6 +14,7 @@ void DIFFICULTY::DIFFICULTY_LEVEL_TITLE()
 		Lv_Select--;
 	}
 
+
 	if (Lv_Select == 0)
 	{
 		strcpy(Lv, "Easy\n       (残機:3)");
@@ -28,4 +29,30 @@ void DIFFICULTY::DIFFICULTY_LEVEL_TITLE()
 	{
 		strcpy(Lv, "Hard\n       (残機:1)");
 	}
+	
+
 }
+void CLEARCONDITION::CLEAR_CONDITION_SELECT_TITLE()
+{
+
+	if (Keyboard_Get(KEY_INPUT_RIGHT) == 1 && ClearCondition_Select < 1)
+	{
+		ClearCondition_Select++;
+	}
+
+	if (Keyboard_Get(KEY_INPUT_LEFT) == 1 && ClearCondition_Select > 0)
+	{
+		ClearCondition_Select--;
+	}
+
+
+	if (ClearCondition_Select == 0)
+	{
+		strcpy(ClearCondition, "モード：タイム制(60秒で終了:逃げ切り)\n");
+	}
+	if (ClearCondition_Select == 1)
+	{
+		strcpy(ClearCondition, "モード：スコア制(60秒で終了)\n");
+	}
+}
+

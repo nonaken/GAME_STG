@@ -11,8 +11,8 @@ int PLAYER_Size_W, PLAYER_Size_H;	//プレイヤー画像の横サイズ、縦サイズを取得
 #define PLAYER_LEFT_SOEJI 3			//左向きの画像
 #define PLAYER_RIGHT_SOEJI 6		//右向きの画像
 
-#define ANIMATION_FRAME 5			//アニメーションの描画を切り替えるフレーム数
-#define ANIMETION_PATTERN 3			//アニメーションの種類
+#define PLAYER_ANIMATION_FRAME 5			//アニメーションの描画を切り替えるフレーム数
+#define PLAYER_ANIMETION_PATTERN 3			//アニメーションの種類
 
 //プレイヤーのスピードを取得する関数
 int PLAYER::Get_PLAYER_Speed()
@@ -37,7 +37,7 @@ int PLAYER::Get_PLAYER_X()
 			PLAYER_COUNT++;
 			
 			//左に移動するアニメーション
-			PLAYER_soeji = PLAYER_LEFT_SOEJI + (PLAYER_COUNT / ANIMATION_FRAME) % ANIMETION_PATTERN;
+			PLAYER_soeji = PLAYER_LEFT_SOEJI + (PLAYER_COUNT / PLAYER_ANIMATION_FRAME) % PLAYER_ANIMETION_PATTERN;
 			
 		}
 		/*if (fps->Wait)
@@ -57,7 +57,7 @@ int PLAYER::Get_PLAYER_X()
 			PLAYER_COUNT++;
 			
 			//右に移動するアニメーション
-			PLAYER_soeji = PLAYER_RIGHT_SOEJI + (PLAYER_COUNT / ANIMATION_FRAME) % ANIMETION_PATTERN;
+			PLAYER_soeji = PLAYER_RIGHT_SOEJI + (PLAYER_COUNT / PLAYER_ANIMATION_FRAME) % PLAYER_ANIMETION_PATTERN;
 			
 			
 		}
@@ -80,7 +80,7 @@ int PLAYER::Get_PLAYER_Y()
 			PLAYER_COUNT++;
 			
 			//上に移動するアニメーション
-			PLAYER_soeji = PLAYER_UP_SOEJI + (PLAYER_COUNT / ANIMATION_FRAME) % ANIMETION_PATTERN;
+			PLAYER_soeji = PLAYER_UP_SOEJI + (PLAYER_COUNT / PLAYER_ANIMATION_FRAME) % PLAYER_ANIMETION_PATTERN;
 			
 		}
 	}
@@ -96,7 +96,7 @@ int PLAYER::Get_PLAYER_Y()
 			PLAYER_COUNT++;
 			
 			//下に移動するアニメーション
-			PLAYER_soeji = PLAYER_DOWN_SOEJI + (PLAYER_COUNT / ANIMATION_FRAME) % ANIMETION_PATTERN;
+			PLAYER_soeji = PLAYER_DOWN_SOEJI + (PLAYER_COUNT / PLAYER_ANIMATION_FRAME) % PLAYER_ANIMETION_PATTERN;
 			
 		}
 	}
@@ -115,3 +115,4 @@ void PLAYER::PLAYER_RESET()
 	PLAYER_X = GAME_WIDTH / PLAYER_X_HALF;
 	PLAYER_Y = GAME_HEIGHT / PLAYER_Y_HALF;
 }
+

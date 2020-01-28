@@ -10,7 +10,8 @@ int ENEMY_ANIMATION_Size;						//ƒGƒlƒ~[‰æ‘œ‚ÌƒTƒCƒY‚ðLoadDivGrahp‚ÅŽæ“¾‚·‚é‚½‚
 int ENEMY_ANIMATION_Size_W, ENEMY_ANIMATION_Size_H;		//ƒGƒlƒ~[‰æ‘œ‚Ì‰¡ƒTƒCƒYAcƒTƒCƒY‚ðŽæ“¾	(ENEMY.cpp‚Å‚à“¯‚¶•Ï”‚ð—˜—p‚·‚é‚½‚ßAextern‚ðŽg—p‚µ‚Ä‚¢‚é)
 
 
-//ƒGƒlƒ~[XÀ•W‚ð—”‚Å¶¬‚·‚éŠÖ”(—”‚Íƒƒ‹ƒZƒ“ƒkEƒcƒCƒXƒ^‚ðŽg—p)
+
+//ƒGƒlƒ~[‚Ì“Y‚¦Žš‚ð—”‚Å¶¬‚·‚éŠÖ”(—”‚Íƒƒ‹ƒZƒ“ƒkEƒcƒCƒXƒ^‚ðŽg—p)
 int ENEMY::RANDOM()
 {
 	std::random_device rd;
@@ -19,7 +20,13 @@ int ENEMY::RANDOM()
 
 	//ENEMY_RANDOM_X_DROW = true;
 	//ƒGƒlƒ~[‰æ‘œ‚Ì“Y‚¦Žš‚ÌÅ¬’l‚©‚çÅ‘å’l‚Ü‚Å‚ð—”‚ÅŒˆ‚ß‚é
-	std::uniform_int_distribution<int> RANDOM(ENEMY_MIN_SOEJI - 1, ENEMY_MAX_SOEJI - 1);	//“Y‚¦Žš‚ÍÅ‰‚P‚©‚ç”‚¦‚é‚½‚ß
+	//std::uniform_int_distribution<int> RANDOM(ENEMY_MIN_SOEJI - 1, ENEMY_MAX_SOEJI - 1);	//“Y‚¦Žš‚ÍÅ‰‚P‚©‚ç”‚¦‚é‚½‚ß
+	std::uniform_int_distribution<int> RANDOM(ENEMY_MIN_SOEJI - 1, ENEMY_RANDOM_soeji_MAX);	//“Y‚¦Žš‚ÍÅ‰‚P‚©‚ç”‚¦‚é‚½‚ß
+	
+	//if (RANDOM(mt) != 0 || RANDOM(mt) % 3 != 0)
+	//{
+	//	std::uniform_int_distribution<int> RANDOM(ENEMY_MIN_SOEJI - 1, ENEMY_RANDOM_soeji_MAX);	//“Y‚¦Žš‚ÍÅ‰‚P‚©‚ç”‚¦‚é‚½‚ß
+	//}
 
 	return RANDOM(mt);
 }
@@ -71,6 +78,7 @@ int ENEMY::Get_ENEMY_X()
 //ƒGƒlƒ~[‚Ì•`‰æˆ—‚ð‚·‚éŠÖ”
 void ENEMY::ENEMY_DRAW()
 {
+
 	DrawGraph(Get_ENEMY_X(), Get_ENEMY_Y(), ENEMY_Handle[RANDOM_soeji], TRUE);
 }
 
@@ -90,6 +98,14 @@ void ENEMY::ENEMY_RESET()
 		ENEMY_Y = GAME_MIN_HEIGHT - ENEMY_Size_H / ENEMY_BUNKATU_Y;
 		ENEMY_X = WINDOW_WIDTH_RANDOM_ENEMY_X();
 		RANDOM_soeji = RANDOM();
+		if (RANDOM_soeji != 0 && RANDOM_soeji % ENEMY_ANIMATION_PATTERN != 0)
+		{
+			RANDOM_soeji = RANDOM();
+		}
+		else
+		{
+			ENEMY_RANDOM_soeji_Evacuation = RANDOM_soeji;
+		}
 }
 
 
