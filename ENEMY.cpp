@@ -104,6 +104,8 @@ void ENEMY::ENEMY_RESET()
 		{
 			ENEMY_RANDOM_soeji_Evacuation = RANDOM_soeji;
 		}
+
+		ENEMY_EXPROSION_flag = false;
 }
 
 

@@ -25,9 +25,12 @@ public:
 	int PLAYER_Y;		//プレイヤーの初期Y位置
 	int PLAYER_soeji = 0;				//プレイヤーの添え字に使う
 	int PLAYER_Handle[PLAYER_MAX_SOEJI];//プレイヤーのハンドル
+	int FontHandle_PLAYER_HP = 0;		//プレイヤーのHPを描画するフォントハンドル用変数
+
 	int Get_PLAYER_Speed();				//プレイヤーのスピードを関数で取得
 	int Get_PLAYER_X();					//プレイヤーのX位置を関数で取得
 	int Get_PLAYER_Y();					//プレイヤーのY位置を関数で取得
+	void PLAYER_HP_DRAW();
 	void PLAYER_DRAW();					//プレイヤーを描画する関数
 	void PLAYER_RESET();				//プレイヤーの初期設定
 	void PLAYER_COLLISION_ENEMY(int ENEMY_X, int ENEMY_Y);		//プレイヤーとエネミーの衝突判定をする関数

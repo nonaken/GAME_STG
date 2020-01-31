@@ -8,14 +8,15 @@
 #include "WINDOW_SIZE.h"
 #include "FPS.h"
 #include "DIFFICULTY_LEVEL.h"
+#include "Background_Scroll.h"
 //******************************************
 
 //***********************ƒ}ƒNƒ’è‹`******************************************************************
-#define GAME_BackImage_TITLE	"BackImage\\kaidou0331_800b.jpg"	//ƒ^ƒCƒgƒ‹‰æ–Ê”wŒi‰æ‘œ
+#define GAME_BackImage_TITLE	"BackImage\\”wŒi.png"//"BackImage\\kaidou0331_800b.jpg"	//ƒ^ƒCƒgƒ‹‰æ–Ê”wŒi‰æ‘œ
 #define GAME_TITLE_LOG			"BackImage\\game_title_font.png"	//ƒ^ƒCƒgƒ‹ƒƒS
-#define GAME_BackImage_PLAY		"BackImage\\”wŒi_1.png"				//ƒvƒŒƒC‰æ–Ê”wŒi‰æ‘œ
+#define GAME_BackImage_PLAY		"BackImage\\”wŒi.png"				//ƒvƒŒƒC‰æ–Ê”wŒi‰æ‘œ
 #define GAME_BackImage_CLEAR	"BackImage\\GAME_CLEAR.jpg"			//ƒNƒŠƒA‰æ–Ê”wŒi‰æ‘œ
-#define GAME_BackImage_END		"BackImage\\GAME_OVER.jpg"			//ƒGƒ“ƒh‰æ–Ê”wŒi‰æ‘œ
+#define GAME_BackImage_END		"BackImage\\GAME_OVER_2.jpg"			//ƒGƒ“ƒh‰æ–Ê”wŒi‰æ‘œ
 
 #define GAME_FPS_SPEED		60			//FPS‚ðÝ’è
 
@@ -61,6 +62,7 @@ ENEMY *e[ENEMY_NUM];					//ƒGƒlƒ~[ƒNƒ‰ƒX‚ð‚R‚Â¶¬‚·‚é
 SCORE *s = new SCORE();					//ƒXƒRƒA‚ÌƒIƒuƒWƒFƒNƒg‚ð¶¬
 DIFFICULTY *Difficulty_Level = new DIFFICULTY();		//“ïˆÕ“x•ÏX‚ðÝ’è‚·‚éƒNƒ‰ƒX‚ð¶¬‚·‚é
 CLEARCONDITION *ClearCondition_Level = new CLEARCONDITION();
+BACKGROUND *Background = new BACKGROUND();
 //********************************************************************
 
 //************************‰æ‘œ‚ÌƒTƒCƒY‚ðŽæ“¾‚·‚é•Ï”**************************************
@@ -74,14 +76,12 @@ extern int WEAPON_Size_W, WEAPON_Size_H;	//ƒGƒlƒ~[‰æ‘œ‚Ì‰¡ƒTƒCƒYAcƒTƒCƒY‚ðŽæ“
 extern int ENEMY_ANIMATION_Size;						//ƒGƒlƒ~[‰æ‘œ‚ÌƒTƒCƒY‚ðLoadDivGrahp‚ÅŽæ“¾‚·‚é‚½‚ß	(ENEMY.cpp‚Å‚à“¯‚¶•Ï”‚ð—˜—p‚·‚é‚½‚ßAextern‚ðŽg—p‚µ‚Ä‚¢‚é)
 extern int ENEMY_ANIMATION_Size_W, ENEMY_ANIMATION_Size_H;		//ƒGƒlƒ~[‰æ‘œ‚Ì‰¡ƒTƒCƒYAcƒTƒCƒY‚ðŽæ“¾	(ENEMY.cpp‚Å‚à“¯‚¶•Ï”‚ð—˜—p‚·‚é‚½‚ßAextern‚ðŽg—p‚µ‚Ä‚¢‚é)
 
-int img_Back_Play_W, img_Back_Play_H;		//ƒvƒŒƒC‰æ–Ê‚ÌcƒXƒNƒ[ƒ‹”wŒi ‰¡ƒTƒCƒY‚ÆcƒTƒCƒY‚ð•ÛŽ‚·‚é•Ï”
 //*******************************************************************************************
 
 
 //**********************”wŒi‰æ‘œ‚ðƒ[ƒh‚·‚é•Ï”**************************
 int imgBack_Title = 0;
 int imgTitle_log = 0;
-int imgBack_Play = 0;
 int imgBack_End = 0;
 int imgBack_Clear = 0;
 //************************************************************************
@@ -104,12 +104,11 @@ int MUSIC_COLISION_Handle = 0;
 //**************************************************
 
 //***************•¶Žš‚ð•`‰æ‚·‚é•Ï”*****************
-int FontHandle_LV_SELECT = 0;
-int FontHandle_ClearCondition_SELECT = 0;
 int FontHandle_LIMIT = 0;
+int FontHandle_ScreenTransition = 0;
 //**************************************************
 
-
+int count = 0;
 
 // ƒvƒƒOƒ‰ƒ€‚Í WinMain ‚©‚çŽn‚Ü‚è‚Ü‚·
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
@@ -123,7 +122,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	}
 
 	SetDrawScreen(DX_SCREEN_BACK);			//•`‰æ‚ð— ‰æ–Ê‚ÉÝ’è
-
 
 	PLAYER_Size = LoadGraph(GAME_PLAYER);	//ƒvƒŒƒCƒ„[‰æ‘œ‚Ìc‚Æ‰¡‚ÌƒTƒCƒY‚ðŽæ“¾‚·‚é‚½‚ßƒ[ƒh‚·‚é(‚·‚®‚ÉŽÌ‚Ä‚é)
 
@@ -151,19 +149,23 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		LoadDivGraph(GAME_WEAPON, WEAPON_BUNKATU, WEAPON_BUNKATU_X, WEAPON_BUNKATU_Y, WEAPON_Size_W / WEAPON_BUNKATU_X, WEAPON_Size_H / WEAPON_BUNKATU_Y, &w[w_cnt]->WEAPON_Handle[0]);
 	}
 
+	//ƒvƒŒƒCƒ„[‰æ‘œ‚Ìc‚Æ‰¡‚ÌƒTƒCƒY‚ðŽæ“¾‚·‚é‚½‚ßƒ[ƒh‚·‚é(‚·‚®‚ÉŽÌ‚Ä‚é)
+	ENEMY_Size = LoadGraph(GAME_ENEMY);	
 
-	ENEMY_Size = LoadGraph(GAME_ENEMY);	//ƒvƒŒƒCƒ„[‰æ‘œ‚Ìc‚Æ‰¡‚ÌƒTƒCƒY‚ðŽæ“¾‚·‚é‚½‚ßƒ[ƒh‚·‚é(‚·‚®‚ÉŽÌ‚Ä‚é)
+	//ƒvƒŒƒCƒ„[‰æ‘œ‚Ìc‚Æ‰¡‚ÌƒTƒCƒY‚ðŽæ“¾
+	GetGraphSize(ENEMY_Size, &ENEMY_Size_W, &ENEMY_Size_H);	
 
-	GetGraphSize(ENEMY_Size, &ENEMY_Size_W, &ENEMY_Size_H);	//ƒvƒŒƒCƒ„[‰æ‘œ‚Ìc‚Æ‰¡‚ÌƒTƒCƒY‚ðŽæ“¾
+	//ƒvƒŒƒCƒ„[‰æ‘œ‚Ìc‚Æ‰¡‚ÌƒTƒCƒY‚ðŽæ“¾‚µ‚½‚çAŽg‚¢ŽÌ‚Ä
+	DeleteGraph(ENEMY_Size);
 
-	DeleteGraph(ENEMY_Size);			//ƒvƒŒƒCƒ„[‰æ‘œ‚Ìc‚Æ‰¡‚ÌƒTƒCƒY‚ðŽæ“¾‚µ‚½‚çAŽg‚¢ŽÌ‚Ä
+	//ƒGƒlƒ~[‚Ì”š”­ƒAƒjƒ[ƒVƒ‡ƒ“—p‰æ‘œ‚Ìc‚Æ‰¡‚ÌƒTƒCƒY‚ðŽæ“¾‚·‚é‚½‚ßƒ[ƒh‚·‚éi‚·‚®‚ÉŽÌ‚Ä‚éj
+	ENEMY_ANIMATION_Size = LoadGraph(ENEMY_EXPROSION_ANIMATION);
 
+	//ƒGƒlƒ~[‚Ì”š”­ƒAƒjƒ[ƒVƒ‡ƒ“—p‰æ‘œ‚Ìc‚Æ‰¡‚ÌƒTƒCƒY‚ðŽæ“¾
+	GetGraphSize(ENEMY_ANIMATION_Size, &ENEMY_ANIMATION_Size_W, &ENEMY_ANIMATION_Size_H);
 
-	ENEMY_ANIMATION_Size = LoadGraph(ENEMY_EXPROSION_ANIMATION);	//ƒGƒlƒ~[‚Ì”š”­ƒAƒjƒ[ƒVƒ‡ƒ“—p‰æ‘œ‚Ìc‚Æ‰¡‚ÌƒTƒCƒY‚ðŽæ“¾‚·‚é‚½‚ßƒ[ƒh‚·‚éi‚·‚®‚ÉŽÌ‚Ä‚éj
-
-	GetGraphSize(ENEMY_ANIMATION_Size, &ENEMY_ANIMATION_Size_W, &ENEMY_ANIMATION_Size_H);	//ƒGƒlƒ~[‚Ì”š”­ƒAƒjƒ[ƒVƒ‡ƒ“—p‰æ‘œ‚Ìc‚Æ‰¡‚ÌƒTƒCƒY‚ðŽæ“¾
-
-	DeleteGraph(ENEMY_ANIMATION_Size);			//ƒGƒlƒ~[‚Ì”š”­ƒAƒjƒ[ƒVƒ‡ƒ“—p‰æ‘œ‚Ìc‚Æ‰¡‚ÌƒTƒCƒY‚ðŽæ“¾‚µ‚½‚çAŽg‚¢ŽÌ‚Ä
+	//ƒGƒlƒ~[‚Ì”š”­ƒAƒjƒ[ƒVƒ‡ƒ“—p‰æ‘œ‚Ìc‚Æ‰¡‚ÌƒTƒCƒY‚ðŽæ“¾‚µ‚½‚çAŽg‚¢ŽÌ‚Ä
+	DeleteGraph(ENEMY_ANIMATION_Size);
 
 
 	for (int e_num = 0; e_num < ENEMY_NUM; e_num++)
@@ -188,7 +190,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	imgTitle_log = LoadGraph(GAME_TITLE_LOG);				//ƒ^ƒCƒgƒ‹ƒƒS‰æ‘œ‚ð“Ç‚Ýž‚Þ(*’ˆÓFwhile•¶‚Å“Ç‚Ýž‚Þ‚ÆFPS‚ª’á‰º‚·‚é[–ˆ‰ñ“Ç‚Ýž‚ñ‚Å‚µ‚Ü‚¤‚½‚ß])
 	
 	//ƒvƒŒƒC‰æ–Ê‚Ì”wŒi‰æ‘œ‚ð“Ç‚Ýž‚Þ
-	imgBack_Play = LoadGraph(GAME_BackImage_PLAY);			//ƒvƒŒƒC”wŒi‰æ‘œ‚ð“Ç‚Ýž‚Þ(*’ˆÓFwhile•¶‚Å“Ç‚Ýž‚Þ‚ÆFPS‚ª’á‰º‚·‚é[–ˆ‰ñ“Ç‚Ýž‚ñ‚Å‚µ‚Ü‚¤‚½‚ß])
+	Background->imgBack_Scroll = LoadGraph(GAME_BackImage_PLAY);			//ƒvƒŒƒC”wŒi‰æ‘œ‚ð“Ç‚Ýž‚Þ(*’ˆÓFwhile•¶‚Å“Ç‚Ýž‚Þ‚ÆFPS‚ª’á‰º‚·‚é[–ˆ‰ñ“Ç‚Ýž‚ñ‚Å‚µ‚Ü‚¤‚½‚ß])
 
 	//ƒNƒŠƒA‰æ–Ê‚Ì”wŒi‰æ‘œ‚ð“Ç‚Ýž‚Þ
 	imgBack_Clear = LoadGraph(GAME_BackImage_CLEAR);		//ƒNƒŠƒA”wŒi‰æ‘œ‚ð“Ç‚Ýž‚Þ(*’ˆÓFwhile•¶‚Å“Ç‚Ýž‚Þ‚ÆFPS‚ª’á‰º‚·‚é[–ˆ‰ñ“Ç‚Ýž‚ñ‚Å‚µ‚Ü‚¤‚½‚ß])
@@ -196,16 +198,28 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	//ƒGƒ“ƒh‰æ–Ê‚Ì”wŒi‰æ‘œ‚ð“Ç‚Ýž‚Þ
 	imgBack_End = LoadGraph(GAME_BackImage_END);			//ƒGƒ“ƒh”wŒi‰æ‘œ‚ð“Ç‚Ýž‚Þ(*’ˆÓFwhile•¶‚Å“Ç‚Ýž‚Þ‚ÆFPS‚ª’á‰º‚·‚é[–ˆ‰ñ“Ç‚Ýž‚ñ‚Å‚µ‚Ü‚¤‚½‚ß])
 	
+	//‰æ–Ê‘JˆÚ‚ðˆÄ“à‚·‚éƒtƒHƒ“ƒgƒnƒ“ƒhƒ‹‚ðì¬
+	FontHandle_ScreenTransition = CreateFontToHandle(NULL, 50, 5);		//•¶Žš‚Ì‘å‚«‚³•ÏX
+
+	//ƒvƒŒƒCƒ„[‚ÌHP‚ð•`‰æ‚·‚éƒtƒHƒ“ƒgƒnƒ“ƒhƒ‹‚ðì¬
+	p->FontHandle_PLAYER_HP = CreateFontToHandle(NULL, 50, 5);		//•¶Žš‚Ì‘å‚«‚³•ÏX
+
 	//“ïˆÕ“x•ÏX—p‚ÌƒtƒHƒ“ƒgƒnƒ“ƒhƒ‹‚ðì¬
-	FontHandle_LV_SELECT = CreateFontToHandle(NULL, 70, 3);	//•¶Žš‚Ì‘å‚«‚³•ÏX
+	Difficulty_Level->FontHandle_LV_SELECT = CreateFontToHandle(NULL, 50, 3);	//•¶Žš‚Ì‘å‚«‚³•ÏX
 
 	//ƒNƒŠƒAðŒ•ÏX—p‚ÌƒtƒHƒ“ƒgƒnƒ“ƒhƒ‹‚ðì¬
-	FontHandle_ClearCondition_SELECT = CreateFontToHandle(NULL, 40, 3);	//•¶Žš‚Ì‘å‚«‚³•ÏX
+	ClearCondition_Level->FontHandle_ClearCondition_SELECT = CreateFontToHandle(NULL, 40, 3);	//•¶Žš‚Ì‘å‚«‚³•ÏX
 
 	//§ŒÀŽžŠÔ—p‚ÌƒtƒHƒ“ƒgƒnƒ“ƒhƒ‹‚ðì¬
 	FontHandle_LIMIT = CreateFontToHandle(NULL, 60, 3);		//•¶Žš‚Ì‘å‚«‚³•ÏX
 
-	 //ƒ}ƒNƒ‚Å’è‹`‚µ‚½‰¹Šyƒtƒ@ƒCƒ‹‚ðƒ[ƒh‚µAŽ¯•Ê”Ô†‚ðMUSIC_Handle‚ÉŠi”[‚·‚é
+	//Šl“¾ƒXƒRƒA•`‰æ—p‚ÌƒtƒHƒ“ƒgƒnƒ“ƒhƒ‹‚ðì¬
+	s->FontHandle_SCORE = CreateFontToHandle(NULL, 50, 3); //•¶Žš‚Ì‘å‚«‚³•ÏX
+
+	//FPS•`‰æ—p‚ÌƒtƒHƒ“ƒgƒnƒ“ƒhƒ‹‚ðì¬
+	fps->FontHandle_FPS = CreateFontToHandle(NULL, 50, 3); //•¶Žš‚Ì‘å‚«‚³•ÏX
+
+	//ƒ}ƒNƒ‚Å’è‹`‚µ‚½‰¹Šyƒtƒ@ƒCƒ‹‚ðƒ[ƒh‚µAŽ¯•Ê”Ô†‚ðMUSIC_Handle‚ÉŠi”[‚·‚é
 	MUSIC_Handle = LoadSoundMem(PLAY_MUSIC);
 
 	//ƒ}ƒNƒ‚Å’è‹`‚µ‚½‰¹Šyƒtƒ@ƒCƒ‹‚ðƒ[ƒh‚µAŽ¯•Ê”Ô†‚ðMUSIC_COLISION_Handle‚ÉŠi”[‚·‚é
@@ -234,9 +248,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 			p->PLAYER_RESET();	//ƒvƒŒƒCƒ„[‚ð‰ŠúˆÊ’u‚Ö
 
+		
+
 			//w->WEAPON_RESET();	//ƒEƒGƒ|ƒ“‚ð‰ŠúˆÊ’u‚Ö
-			for (int w_cnt = 0; w_cnt < WEAPON_NUM; w_cnt++)
+			for (int e_num = 0, w_cnt = 0; e_num < ENEMY_NUM, w_cnt < WEAPON_NUM; e_num++, w_cnt++)
 			{
+				e[e_num]->ENEMY_RESET();
 				w[w_cnt]->WEAPON_RESET();	//ƒEƒGƒ|ƒ“‚ð‰ŠúˆÊ’u‚Ö
 			}
 
@@ -248,14 +265,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 			GAME_PLAY_DRAW();	//ƒvƒŒƒC‰æ–Ê‚ð•`‰æ
 
+			count++;
+
 			//ƒEƒGƒ|ƒ“‚ÆƒGƒlƒ~[‚ð•¡”¶¬‚·‚é
 			for (int w_cnt = 0, e_num = 0; w_cnt < WEAPON_NUM, e_num < ENEMY_NUM; w_cnt++, e_num++)
 			{
 				p->PLAYER_COLLISION_ENEMY(e[e_num]->ENEMY_X, e[e_num]->ENEMY_Y);		//ƒvƒŒƒCƒ„[‚ÆƒGƒlƒ~[‚ÌÕ“Ë”»’è
 				w[w_cnt]->WEAPON_COLLISION_ENEMY(e[e_num]->ENEMY_X, e[e_num]->ENEMY_Y);	//ƒEƒGƒ|ƒ“‚ÆƒGƒlƒ~[‚ÌÕ“Ë”»’è
 
-				e[e_num]->ENEMY_COUNT++;
-				e[e_num]->RANDOM_soeji = e[e_num]->ENEMY_RANDOM_soeji_Evacuation + (e[e_num]->ENEMY_COUNT / ENEMY_ANIMATION_FRAME) % ENEMY_ANIMATION_PATTERN;
+				e[e_num]->ENEMY_ANIMATION_COUNT++;
+				e[e_num]->RANDOM_soeji = e[e_num]->ENEMY_RANDOM_soeji_Evacuation + (e[e_num]->ENEMY_ANIMATION_COUNT / ENEMY_ANIMATION_FRAME) % ENEMY_ANIMATION_PATTERN;
 
 				//”š”­ƒtƒ‰ƒO‚ªture‚Ì‚Æ‚«
 				if (e[e_num]->ENEMY_EXPROSION_flag == true)
@@ -265,9 +284,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 						e[e_num]->ENEMY_EXPROSION_flag = false;
 					}
 					//ƒGƒlƒ~[‚ÌƒAƒjƒ[ƒVƒ‡ƒ“—pƒJƒEƒ“ƒg
-					e[e_num]->ENEMY_COUNT++;
+					e[e_num]->ENEMY_ANIMATION_COUNT++;
 					//”š”­ƒAƒjƒ[ƒVƒ‡ƒ“
-					e[e_num]->ENEMY_ANIMATION_soeji = (e[e_num]->ENEMY_COUNT / ENEMY_ANIMATION_EXPROSION_FRAME) % ENEMY_ANIMATION_EXPROSION_PATTERN;
+					e[e_num]->ENEMY_ANIMATION_soeji = (e[e_num]->ENEMY_ANIMATION_COUNT / ENEMY_ANIMATION_EXPROSION_FRAME) % ENEMY_ANIMATION_EXPROSION_PATTERN;
 					//”š”­ƒAƒjƒ[ƒVƒ‡ƒ“
 					e[e_num]->ENEMY_ANIMATION_DRAW((ENEMY_ANIMATION_Size_W / ENEMY_ANIMATION_BUNKATU_X / 2) - (ENEMY_Size_W / ENEMY_BUNKATU_X / 2), (ENEMY_ANIMATION_Size_H / ENEMY_ANIMATION_BUNKATU_Y / 2) - (ENEMY_Size_H / ENEMY_BUNKATU_Y / 2));
 					
@@ -278,7 +297,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				}*/
 				e[e_num]->ENEMY_DRAW();		//ƒGƒlƒ~[‚Ì•`‰æˆ—
 				//e[e_num]->ENEMY_ANIMATION_DRAW((ANIMATION_BUNKATU_SIZE_X / 2) - (ENEMY_BUNKATU_SIZE_X / 2), (ANIMATION_BUNKATU_SIZE_Y / 2) - (ENEMY_BUNKATU_SIZE_Y / 2));
-				w[w_cnt]->WEAPON_DRAW();	//ƒEƒGƒ|ƒ“‚Ì•`‰æˆ—
+				
+				//”š’eƒAƒjƒ[ƒVƒ‡ƒ“—pƒJƒEƒ“ƒg
+				w[w_cnt]->WEAPON_ANIMATION_COUNT++;
+
+				//”š’eƒAƒjƒ[ƒVƒ‡ƒ“ˆ—
+				w[w_cnt]->WEAPON_soeji = (w[w_cnt]->WEAPON_ANIMATION_COUNT / WEAPON_ANIMATION_EXPROSION_FRAME) % WEAPON_ANIMATION_PATTERN;
+
+				//ƒEƒGƒ|ƒ“‚Ì•`‰æˆ—
+				w[w_cnt]->WEAPON_DRAW((WEAPON_Size_W / WEAPON_BUNKATU_X / 2) - (PLAYER_Size_W / PLAYER_BUNKATU_X / 2), (WEAPON_Size_H / WEAPON_BUNKATU_Y / 2) - (PLAYER_Size_H / PLAYER_BUNKATU_Y / 2));
 			}
 
 
@@ -294,17 +321,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			//	
 			//	e[num]->ENEMY_DRAW();		//ƒGƒlƒ~[‚Ì•`‰æˆ—
 			//}
-			DrawFormatStringF(0, 200, RGB(255, 255, 255), "ENEMY_X[1]:%d", e[0]->ENEMY_X);
+			/*DrawFormatStringF(0, 200, RGB(255, 255, 255), "ENEMY_X[1]:%d", e[0]->ENEMY_X);
 			DrawFormatStringF(0, 350, RGB(255, 255, 255), "ENEMY_X[2]:%d", e[1]->ENEMY_X);
 			DrawFormatStringF(0, 500, RGB(255, 255, 255), "ENEMY_X[3]:%d", e[2]->ENEMY_X);
-			DrawFormatStringF(0, 400, RGB(255, 255, 255), "WEAPON_Y[w_cnt]:%d", w[2]->WEAPON_Y);
+			DrawFormatStringF(0, 400, RGB(255, 255, 255), "WEAPON_Y[w_cnt]:%d", w[2]->WEAPON_Y);*/
 			//w->WEAPON_DRAW();
 
 			s->DRAW_TOTAL_SCORE();	//ƒg[ƒ^ƒ‹ƒXƒRƒA‚ð•`‰æ
 
 
 			//§ŒÀŽžŠÔ‚ÌÝ’è
-			DrawFormatStringToHandle(500, 0, GetColor(255, 255, 255), FontHandle_LIMIT, "LIMIT_TIMEF%d•b", (LIMIT_TIME - (Get_Time - GAME_TITLE_ELAPSEDTIME) / 1000));	//•¶Žš‚Ì‘å‚«‚³•ÏX);
+			DrawFormatStringToHandle(500, 0, GetColor(150, 255, 255), FontHandle_LIMIT, "LIMIT_TIMEF%d•b", (LIMIT_TIME - (Get_Time - GAME_TITLE_ELAPSEDTIME) / 1000));	//•¶Žš‚Ì‘å‚«‚³•ÏX);
 
 			//ƒNƒŠƒAðŒ‚Ì•ÏX
 			DrawExtendGraph(0, 0, GAME_WIDTH, GAME_HEIGHT, ClearCondition_Level->TimeMode_Play_flag, false);
@@ -313,16 +340,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 		case GAME_CLEAR:		//ƒQ[ƒ€ƒNƒŠƒA‰æ–Ê
 			GAME_CLEAR_DRAW();
+			s->DRAW_TOTAL_SCORE();	//ƒg[ƒ^ƒ‹ƒXƒRƒA‚ð•`‰æ
 			break;
 		
 		case GAME_END:			//ƒQ[ƒ€ƒGƒ“ƒh‰æ–Ê
 			GAME_END_DRAW();	//ƒGƒ“ƒh‰æ–Ê‚ð•`‰æ
+			s->DRAW_TOTAL_SCORE();	//ƒg[ƒ^ƒ‹ƒXƒRƒA‚ð•`‰æ
 			break;
 
 		default:
 			break;
 		}
-		fps->Draw(0, 220);	//FPS‚Ìˆ—[•`‰æ]
+		fps->Draw(0, 50);	//FPS‚Ìˆ—[•`‰æ]
 
 		ScreenFlip();		//ƒ‚ƒjƒ^‚ÌƒŠƒtƒŒƒbƒVƒ…ƒŒ[ƒg‚Ì‘¬‚³‚Å— ‰æ–Ê‚ðÄ•`‰æ
 
@@ -332,7 +361,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 	delete fps;		//fpsƒNƒ‰ƒX‚Ì‰ð•ú
 	delete p;		//PLAYERƒNƒ‰ƒX‚Ì‰ð•ú
-	//delete w;
+	delete s;		//ƒXƒRƒAƒNƒ‰ƒX‚Ì‰ð•ú
+	delete Difficulty_Level;		//“ïˆÕ“x•ÏXƒNƒ‰ƒX‚Ì‰ð•ú
+	delete ClearCondition_Level;	//ƒNƒ‰ƒXðŒ•ÏXƒNƒ‰ƒX‚Ì‰ð•ú
+	delete Background;				//ƒXƒNƒ[ƒ‹‚·‚é”wŒi‰æ‘œƒNƒ‰ƒX‚Ì‰ð•ú
 	for (int w_cnt = 0; w_cnt < WEAPON_NUM; w_cnt++)
 	{
 		delete w[w_cnt];		//WEAPONƒNƒ‰ƒX‚Ì‰ð•ú
@@ -350,16 +382,25 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 void GAME_TITLE_DRAW() 
 {
 	//ƒ^ƒCƒgƒ‹‰æ‘œ‚Ì”wŒi‰æ‘œ‚ð•`‰æ‚·‚é
-	DrawExtendGraph(0, 0, GAME_WIDTH, GAME_HEIGHT, imgBack_Title, false);
+	//DrawExtendGraph(0, 0, GAME_WIDTH, GAME_HEIGHT, imgBack_Title, false);
+
+	//ƒXƒNƒ[ƒ‹‚·‚é”wŒi‰æ‘œ‚ð•`‰æ‚·‚éŠÖ”
+	Background->Background_Scroll_Draw();
+	
+	//”wŒi‚ðƒXƒNƒ[ƒ‹‚·‚éŠÖ”
+	Background->Background_Scroll();
 
 	//ƒ^ƒCƒgƒ‹ƒƒS‚Ì‰æ‘œ‚ð•`‰æ‚·‚é
 	DrawExtendGraph(GAME_TITLE_LOG_UPPERLEFT_X, GAME_TITLE_LOG_UPPERLEFT_Y, GAME_TITLE_LOG_BOTTOMLEFT_X, GAME_TITLE_LOG_BOTTOMLEFT_Y, imgTitle_log, true);
 
 	//ƒGƒ“ƒ^[‰æ–Ê‚Ö‘JˆÚ‚·‚éðŒ‚ð•`‰æ
-	DrawString(0, 0, "ƒ^ƒCƒgƒ‹@ƒGƒ“ƒ^[‚ÅƒvƒŒƒC‰æ–Ê‚Ö", RGB(255, 255, 255));
+	DrawStringToHandle(0, 0, "ƒ^ƒCƒgƒ‹@ƒGƒ“ƒ^[‚ÅƒvƒŒƒC‰æ–Ê‚Ö", RGB(255, 255, 255), FontHandle_ScreenTransition);
 
-	DrawFormatStringToHandle(100, 400, GetColor(255, 0, 255), FontHandle_LV_SELECT, "“ïˆÕ“xF%s", Difficulty_Level->Lv);	//“ïˆÕ“x‚ð•`‰æ‚·‚éŠÖ”
-	DrawFormatStringToHandle(0, 200, GetColor(0, 0, 255), FontHandle_ClearCondition_SELECT, "%s", ClearCondition_Level->ClearCondition);
+	//“ïˆÕ“x•ÏX‚ð•`‰æ‚·‚éŠÖ”
+	Difficulty_Level->DIFFICULTY_LEVEL_SELECT_DRAW();
+
+	//ƒNƒŠƒAðŒ•ÏX‚ð•`‰æ‚·‚éŠÖ”
+	ClearCondition_Level->CLEAR_CONDITION_SELECT_DRAW();
 
 	//ƒ^ƒCƒgƒ‹‰æ–Ê‚ÅƒNƒŠƒAðŒ‚ð•ÏX‚µA’l‚ð•ÛŽ‚·‚éŠÖ”
 	ClearCondition_Level->CLEAR_CONDITION_SELECT_TITLE();
@@ -390,30 +431,16 @@ void GAME_TITLE_DRAW()
 //ƒvƒŒƒC‰æ–Ê‚ð•`‰æ‚·‚éŠÖ”
 void GAME_PLAY_DRAW()
 {
+	//ƒXƒNƒ[ƒ‹‚·‚é”wŒi‰æ‘œ‚ð•`‰æ‚·‚éŠÖ”
+	Background->Background_Scroll_Draw();
 
-	//////////////////////ƒXƒNƒ[ƒ‹‚·‚é”wŒi‚ð•`‰æ‚·‚éˆ—/////////////////
-	//ƒvƒŒƒC‰æ–Ê‚Ì”wŒi‰æ‘œ‚ð•`‰æ‚·‚é(‚P–‡–Ú)
-	DrawExtendGraph(img_Back_Play_W, img_Back_Play_H, GAME_WIDTH, GAME_HEIGHT + img_Back_Play_H, imgBack_Play, false);
-
-	//ƒvƒŒƒC‰æ–Ê‚Ì”wŒi‰æ‘œ‚ð•`‰æ‚·‚é(‚Q–‡–ÚƒXƒNƒ[ƒ‹—p)
-	DrawExtendGraph(img_Back_Play_W, img_Back_Play_H - GAME_HEIGHT, GAME_WIDTH, img_Back_Play_H, imgBack_Play, false);
-	///////////////////////////////////////////////////////////////////////////
+	//”wŒi‚ðƒXƒNƒ[ƒ‹‚·‚éŠÖ”
+	Background->Background_Scroll();
 
 	//ƒGƒ“ƒh‰æ–Ê‚Ö‘JˆÚ‚·‚éðŒ‚ð•`‰æ
-	DrawString(0, 0, "ƒvƒŒƒC ƒXƒy[ƒX‚ÅƒGƒ“ƒh‰æ–Ê‚Ö", RGB(255, 255, 255));
+	//DrawStringToHandle(0, 0, "ƒvƒŒƒC ƒXƒy[ƒX‚ÅƒGƒ“ƒh‰æ–Ê‚Ö", RGB(255, 255, 255), FontHandle_ScreenTransition);
 
-	//***********************ƒXƒNƒ[ƒ‹ˆ—***********************
-	//‚Q–‡–Ú‚Ì‰æ‘œ‚ÌƒXƒNƒ[ƒ‹‚ªI‚í‚é‚Ü‚Å‰ÁŽZ‚·‚é
-	if (img_Back_Play_H < GAME_HEIGHT)
-	{
-		img_Back_Play_H += 5;
-	}
-	//‚Q–‡–Ú‚Ì‰æ‘œ‚ÌƒXƒNƒ[ƒ‹‚ªI‚í‚Á‚½‚çƒŠƒZƒbƒg‚·‚é
-	else
-	{
-		img_Back_Play_H = 0;
-	}
-	//**************************************************************
+	p->PLAYER_HP_DRAW();	//ƒvƒŒƒCƒ„[‚ÌHP‚ð•`‰æ‚·‚éŠÖ”
 
 	//§ŒÀŽžŠÔ‚ª0•b‚É‚È‚Á‚½‚ç(ƒXƒRƒAƒ‚[ƒh‚Ì‚Æ‚«)
 	if (LIMIT_TIME - (Get_Time - GAME_TITLE_ELAPSEDTIME) / 1000 <= PLAY_END_TIME && ClearCondition_Level->ScoreMode_Play_flag == true)
@@ -438,8 +465,6 @@ void GAME_PLAY_DRAW()
 	{
 		screen_state = GAME_CLEAR;		//ƒGƒ“ƒh‰æ–Ê‚Ö‘JˆÚ‚·‚é
 	}
-
-
 }
 
 //ƒNƒŠƒA‰æ–Ê‚ð•`‰æ‚·‚éŠÖ”
@@ -447,7 +472,7 @@ void GAME_CLEAR_DRAW()
 {
 	DrawExtendGraph(0, 0, GAME_WIDTH, GAME_HEIGHT, imgBack_Clear, false);
 
-	DrawString(0, 0, "ƒNƒŠƒA@ƒoƒbƒNƒXƒy[ƒX‚Åƒ^ƒCƒgƒ‹‰æ–Ê‚Ö", RGB(255, 255, 255));
+	DrawStringToHandle(0, 0, "ƒNƒŠƒA@ƒoƒbƒNƒXƒy[ƒX‚Åƒ^ƒCƒgƒ‹‰æ–Ê‚Ö", RGB(0, 0, 255), FontHandle_ScreenTransition);
 
 	//ƒoƒbƒNƒXƒy[ƒXƒL[‚ª‰Ÿ‚³‚ê‚½‚ç
 	if (Keyboard_Get(KEY_INPUT_BACK) == 1)
@@ -455,7 +480,7 @@ void GAME_CLEAR_DRAW()
 		screen_state = GAME_TITLE;		//ƒ^ƒCƒgƒ‹‰æ–Ê‚Ö‘JˆÚ‚·‚é
 	}
 
-	DrawString(0, 50, "ƒGƒ“ƒh@ƒGƒXƒP[ƒvƒL[‚ÅƒQ[ƒ€I—¹", RGB(255, 255, 255));
+	DrawStringToHandle(0, 550, "ƒNƒŠƒA@ƒGƒXƒP[ƒvƒL[‚ÅƒQ[ƒ€I—¹", RGB(0, 255, 255), FontHandle_ScreenTransition);
 
 	//ƒGƒXƒP[ƒvƒL[‚ª‰Ÿ‚³‚ê‚½‚ç
 	if (Keyboard_Get(KEY_INPUT_ESCAPE) == 1)
@@ -463,6 +488,7 @@ void GAME_CLEAR_DRAW()
 		DxLib_End();					//ƒQ[ƒ€I—¹
 	}
 
+	//Šl“¾‚µ‚½ƒXƒRƒA‚ð•`‰æ‚·‚éŠÖ”
 	s->DRAW_TOTAL_SCORE();
 }
 
@@ -473,7 +499,7 @@ void GAME_END_DRAW()
 	//ƒGƒ“ƒh‰æ–Ê‚Ì”wŒi‰æ‘œ‚ð•`‰æ‚·‚é
 	DrawExtendGraph(0, 0, GAME_WIDTH, GAME_HEIGHT, imgBack_End, false);
 
-	DrawString(0, 0, "ƒGƒ“ƒh@ƒoƒbƒNƒXƒy[ƒX‚Åƒ^ƒCƒgƒ‹‰æ–Ê‚Ö", RGB(255, 255, 255));
+	DrawStringToHandle(0, 0, "ƒGƒ“ƒh@ƒoƒbƒNƒXƒy[ƒX‚Åƒ^ƒCƒgƒ‹‰æ–Ê‚Ö", RGB(0, 0, 255), FontHandle_ScreenTransition);
 
 	//ƒoƒbƒNƒXƒy[ƒXƒL[‚ª‰Ÿ‚³‚ê‚½‚ç
 	if (Keyboard_Get(KEY_INPUT_BACK) == 1)
@@ -481,13 +507,16 @@ void GAME_END_DRAW()
 		screen_state = GAME_TITLE;		//ƒ^ƒCƒgƒ‹‰æ–Ê‚Ö‘JˆÚ‚·‚é
 	}
 
-	DrawString(0, 50, "ƒGƒ“ƒh@ƒGƒXƒP[ƒvƒL[‚ÅƒQ[ƒ€I—¹", RGB(255, 255, 255));
+	DrawStringToHandle(0, 550, "ƒGƒ“ƒh@ƒGƒXƒP[ƒvƒL[‚ÅƒQ[ƒ€I—¹", RGB(0, 255, 255), FontHandle_ScreenTransition);
 
 	//ƒGƒXƒP[ƒvƒL[‚ª‰Ÿ‚³‚ê‚½‚ç
 	if (Keyboard_Get(KEY_INPUT_ESCAPE) == 1)
 	{
 		DxLib_End();					//ƒQ[ƒ€I—¹
 	}
+
+	//Šl“¾‚µ‚½ƒXƒRƒA‚ð•`‰æ‚·‚éŠÖ”
+	s->DRAW_TOTAL_SCORE();
 }
 
 //ƒvƒŒƒCƒ„[‚ÆƒGƒlƒ~[‚ÌÕ“Ë”»’è
@@ -510,7 +539,7 @@ void PLAYER::PLAYER_COLLISION_ENEMY(int ENEMY_X, int ENEMY_Y)
 		}
 	}
 
-	DrawFormatString(0, 50, RGB(255, 255, 255), "PLAYERF%d", p->PLAYER_HP);	//ƒvƒŒƒCƒ„[‚Ì‘Ì—Í‚ð•`‰æ‚·‚é
+	//DrawFormatString(0, 50, RGB(255, 255, 255), "PLAYERF%d", p->PLAYER_HP);	//ƒvƒŒƒCƒ„[‚Ì‘Ì—Í‚ð•`‰æ‚·‚é
 
 	//ƒvƒŒƒCƒ„[‚Ì‘Ì—Í‚ª0ˆÈ‰º‚È‚ç
 	if (p->PLAYER_HP <= 0)
@@ -545,52 +574,48 @@ int WEAPON::Get_WEAPON_X()
 	}
 
 	return WEAPON_X;
-};
+}
 
 //ƒEƒGƒ|ƒ“‚ÌYˆÊ’u‚ðŽæ“¾‚·‚éŠÖ”
 int WEAPON::Get_WEAPON_Y()
 {
+	
 		//WEAPON_Y = Get_PLAYER_Y() - WEAPON_Size_H / WEAPON_BUNKATU_Y;
-		//ƒEƒGƒ|ƒ“‚ð‘€ì‚·‚é@A@ƒL[‚ð‰Ÿ‚µ‚½ê‡
-		if (Keyboard_Get(KEY_INPUT_A) >= 1)
-		{
-			WEAPON_flag_Y = true;		//A ƒL[‚ð‰Ÿ‚µ‚½‚Æ‚«AŽ©“®‚ÅYÀ•W‚ð‰ÁŽZ‚·‚é‚½‚ß‚Ìƒtƒ‰ƒO
-			Get_WEAPON_Time = Get_Time;
-		}
-
+	
+		//A ƒL[‚ð‰Ÿ‚µ‚½‚Æ‚«AŽ©“®‚ÅYÀ•W‚ð‰ÁŽZ‚·‚é‚½‚ß‚Ìƒtƒ‰ƒO
+		//Get_WEAPON_Time = Get_Time;
 		for (int w_cnt = 0; w_cnt < WEAPON_NUM; w_cnt++)
 		{
-			//if ( 2 - (Get_Time - Get_WEAPON_Time) / 1000 <= PLAY_END_TIME)
-			//{
-				w[w_cnt]->WEAPON_flag_X = true;		//A	ƒL[‚ð‰Ÿ‚µ‚½‚Æ‚«AƒvƒŒƒCƒ„[‚ÌXÀ•W‚ðŽæ“¾‚·‚é‚½‚ß‚Ìƒtƒ‰ƒO
-				w[w_cnt]->WEAPON_flag_Y = true;		//A ƒL[‚ð‰Ÿ‚µ‚½‚Æ‚«AŽ©“®‚ÅYÀ•W‚ð‰ÁŽZ‚·‚é‚½‚ß‚Ìƒtƒ‰ƒO
-				w[w_cnt]->WEAPON_Next_flag = true;
-				Get_WEAPON_Time = Get_Time;
-			//}
-		/*	else
+			//ƒEƒGƒ|ƒ“‚ð‘€ì‚·‚é@A@ƒL[‚ð‰Ÿ‚µ‚½ê‡
+			if (Keyboard_Get(KEY_INPUT_A) >= 1 && count % 30 == 0) //)
 			{
-				w[w_cnt]->WEAPON_Next_flag = false;
-			}*/
-			
-		}
+				if (w[w_cnt]->WEAPON_flag_Y == false)
+				{
+					//if ( 2 - (Get_Time - Get_WEAPON_Time) / 1000 == PLAY_END_TIME)
+					//{ 
+					w[w_cnt]->WEAPON_flag_X = true;		//A	ƒL[‚ð‰Ÿ‚µ‚½‚Æ‚«AƒvƒŒƒCƒ„[‚ÌXÀ•W‚ðŽæ“¾‚·‚é‚½‚ß‚Ìƒtƒ‰ƒO
+					w[w_cnt]->WEAPON_flag_Y = true;		//A ƒL[‚ð‰Ÿ‚µ‚½‚Æ‚«AŽ©“®‚ÅYÀ•W‚ð‰ÁŽZ‚·‚é‚½‚ß‚Ìƒtƒ‰ƒO
+					/*w[w_cnt]->WEAPON_X = p->PLAYER_X;
+					w[w_cnt]->WEAPON_Y = p->PLAYER_Y;*/
 
-		for (int w_cnt = 0; w_cnt < WEAPON_NUM; w_cnt++)
-		{
+
+					//w[w_cnt]->WEAPON_Next_flag = true;
+					//Get_WEAPON_Time = Get_Time;
+					//}
+				}
+			}
+
 			if (w[w_cnt]->WEAPON_flag_Y == false)
 			{
 				w[w_cnt]->WEAPON_Y = p->PLAYER_Y;		//ƒEƒGƒ|ƒ“‚ÌYƒtƒ‰ƒO‚ªfalse‚Ì‚Æ‚«AƒEƒGƒ|ƒ“‚ÌYÀ•W‚ðƒvƒŒƒCƒ„[‚ÌYÀ•W‚Æ“¯‚¶‚É‚·‚é
 			}
 
-			////A ƒL[‚ð‰Ÿ‚µ‚½‚Æ‚«AŽ©“®‚ÅYÀ•W‚ð‰ÁŽZ‚·‚é‚½‚ß‚Ìƒtƒ‰ƒO
-			//if (w[w_cnt]->WEAPON_flag_Y == true && w[w_cnt]->WEAPON_Next_flag == true)
-			//{
-			//	w[w_cnt]->WEAPON_Y -= Get_WEAPON_Speed(WEAPON_Speed);
-			//}
+			//A ƒL[‚ð‰Ÿ‚µ‚½‚Æ‚«AŽ©“®‚ÅYÀ•W‚ð‰ÁŽZ‚·‚é‚½‚ß‚Ìƒtƒ‰ƒO
+			if (w[w_cnt]->WEAPON_flag_Y == true)
+			{
+				WEAPON_Y -= Get_WEAPON_Speed();
+			}
 
-		}
-		
-		for (int w_cnt = 0; w_cnt < WEAPON_NUM; w_cnt++)
-		{	
 			if (w[w_cnt]->WEAPON_flag_X == true && w[w_cnt]->WEAPON_Y == p->PLAYER_Y)// - (WEAPON_Size_H / WEAPON_BUNKATU_Y))
 			{
 				//ƒEƒGƒ|ƒ“‚ÌXÀ•W‚ðƒvƒŒƒCƒ„[‚ÌXÀ•W‚Æ“¯‚¶’l‚É‚·‚é
@@ -600,16 +625,9 @@ int WEAPON::Get_WEAPON_Y()
 				w[w_cnt]->WEAPON_flag_X = false;
 			}
 
-			//ƒEƒGƒ|ƒ“‚ÌYƒtƒ‰ƒO‚ª(AƒL[‚ð‰Ÿ‚µ‚½)true‚©‚ÂAƒEƒGƒ|ƒ“‚ÌYÀ•W‚ª(0ˆÈã)‰æ–Ê“à‚È‚ç
-			if (w[w_cnt]->WEAPON_flag_Y == true && w[w_cnt]->WEAPON_Y >= GAME_MIN_HEIGHT && w[w_cnt]->WEAPON_Next_flag == true)
-			{
-				//window‚Ì¶’[‚Ü‚ÅˆÚ“®‚·‚é	
-				w[w_cnt]->WEAPON_Y -= w[w_cnt]->Get_WEAPON_Speed(WEAPON_Speed);
-			
-			}
 
-			//ƒEƒGƒ|ƒ“‰æ‘œ‚ÌYÀ•W‚ª‰æ–ÊŠO(0‚æ‚è‚à’á‚¢’l)‚É“ž’B‚µ‚½‚Æ‚«
-			if (w[w_cnt]->WEAPON_Y < GAME_MIN_HEIGHT)
+			//ƒEƒGƒ|ƒ“‰æ‘œ‚ÌYÀ•W‚ª‰æ–ÊŠO(0‚æ‚è‚à’á‚¢’l)‚É“ž’B‚µ‚½‚Æ‚« //•`‰æˆ—‚Å‚¸‚ç‚µ‚½YÀ•W‚ð’²®
+			if (w[w_cnt]->WEAPON_Y + (PLAYER_Size_H / PLAYER_BUNKATU_Y / 2) < GAME_MIN_HEIGHT)
 			{
 				//ƒEƒGƒ|ƒ“‚ÌYÀ•W‚ðƒvƒŒƒCƒ„[‚ÌYÀ•W‚©‚çAƒEƒGƒ|ƒ“‰æ‘œƒTƒCƒY‚©‚ç•ªŠ„‚µAˆø‚¢‚½’l‚É‚·‚é
 				//(ƒEƒGƒ|ƒ“‚Ì‰æ‘œ‚ðƒvƒŒƒCƒ„[‚Ì“ªã‚É”z’u‚·‚é‚½‚ß)
@@ -624,9 +642,30 @@ int WEAPON::Get_WEAPON_Y()
 					//w[w_cnt]->WEAPON_Next_flag = false;
 				}
 			}
+
+
+			//ƒEƒGƒ|ƒ“‚ÌYƒtƒ‰ƒO‚ª(AƒL[‚ð‰Ÿ‚µ‚½)true‚©‚ÂAƒEƒGƒ|ƒ“‚ÌYÀ•W‚ª(0ˆÈã)‰æ–Ê“à‚È‚ç
+			
+			/*else
+			{
+				w[w_cnt]->WEAPON_Next_flag = false;
+			}*/
+
 		}
+	
+	
+	//for (int w_cnt = 0; w_cnt < WEAPON_NUM; w_cnt++)
+	//{
+	//	////•`‰æˆ—‚Å‚¸‚ç‚µ‚½YÀ•W‚ð’²®
+	//	//if (w[w_cnt]->WEAPON_flag_Y == true && w[w_cnt]->WEAPON_Y + (PLAYER_Size_H / PLAYER_BUNKATU_Y / 2) >= GAME_MIN_HEIGHT) //&& w[w_cnt]->WEAPON_Next_flag == true)
+	//	//{
+	//	//	//window‚Ì¶’[‚Ü‚ÅˆÚ“®‚·‚é
+	//	//	w[w_cnt]->WEAPON_Y -= w[w_cnt]->Get_WEAPON_Speed(WEAPON_Speed);
+	//	//}
+	//}
+		
 	return WEAPON_Y;
-};
+}
 
 
 //ƒEƒGƒ|ƒ“‚ÆƒGƒlƒ~[‚ÌÕ“Ë”»’è

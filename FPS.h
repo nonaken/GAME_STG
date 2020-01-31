@@ -23,6 +23,8 @@ public:
 
 	DWORD		flameCount;				//フレームのカウント
 
+	int FontHandle_FPS = 0;				//FPS描画用のフォントハンドル用変数
+
 	//コンストラクタ
 	//引　数：int　：FPS値
 	FPS(int);

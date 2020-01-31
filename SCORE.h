@@ -13,4 +13,5 @@ public:
 	int TOTAL_SCORE();			//獲得したスコアを保持し、計算する関数
 	void DRAW_TOTAL_SCORE();	//獲得したスコアを描画する関数
 	void SCORE_RESET();			//獲得したスコアをリセットする関数
+	int FontHandle_SCORE = 0;
 };

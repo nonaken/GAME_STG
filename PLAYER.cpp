@@ -16,10 +16,6 @@
 int PLAYER_Size;					//プレイヤーの画像サイズをLoadDivGrahpで取得するため
 int PLAYER_Size_W, PLAYER_Size_H;	//プレイヤー画像の横サイズ、縦サイズを取得
 
-
-
-
-
 //プレイヤーのスピードを取得する関数
 int PLAYER::Get_PLAYER_Speed()
 {
@@ -64,8 +60,6 @@ int PLAYER::Get_PLAYER_X()
 			
 			//右に移動するアニメーション
 			PLAYER_soeji = PLAYER_RIGHT_SOEJI + (PLAYER_COUNT / PLAYER_ANIMATION_FRAME) % PLAYER_ANIMETION_PATTERN;
-			
-			
 		}
 	}
 	return PLAYER_X;
@@ -107,6 +101,12 @@ int PLAYER::Get_PLAYER_Y()
 		}
 	}
 	return PLAYER_Y;
+}
+
+//プレイヤーのHPを描画する関数
+void PLAYER::PLAYER_HP_DRAW()
+{
+	DrawFormatStringToHandle(0, 0, GetColor(255, 0, 0), FontHandle_PLAYER_HP,"PLAYER：%d", PLAYER_HP);	//プレイヤーの体力を描画する
 }
 
 //プレイヤーを描画する関数

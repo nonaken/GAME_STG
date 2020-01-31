@@ -12,7 +12,8 @@ int SCORE::TOTAL_SCORE()
 //獲得したスコアを描画する関数
 void SCORE::DRAW_TOTAL_SCORE()
 {
-	DrawFormatStringF(300, 500, RGB(255, 255, 255), "TOTAL_SCORE:%d", total_score);
+	//DrawFormatStringF(300, 0, RGB(255, 255, 255), "TOTAL_SCORE:%d", total_score);
+	DrawFormatStringToHandle(600, 70, GetColor(255, 255, 0), FontHandle_SCORE, "TOTAL_SCORE:%d", total_score);	//文字の大きさ変更);
 }
 
 //int SCORE::score_board()

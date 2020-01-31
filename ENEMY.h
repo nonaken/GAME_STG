@@ -11,7 +11,7 @@
 
 #define ENEMY_RANDOM_soeji_MAX 9	//エネミーのランダムで取得したい添え字の最大値
 
-#define ENEMY_NUM 3				//画面に登場するエネミーの数
+#define ENEMY_NUM 10				//画面に登場するエネミーの数
 
 #define ENEMY_EXPROSION_ANIMATION	"ANIMATION\\衝突演出.png"	//エネミーの爆発アニメーション画像
 #define ENEMY_ANIMATION_BUNKATU	6		//エネミー画像の総分割数
@@ -19,7 +19,7 @@
 #define ENEMY_ANIMATION_BUNKATU_Y 2//4	//エネミー画像の縦分割数
 #define ENEMY_ANIMATION_MIN_SOEJI 1		//エネミーの最初の画像
 #define ENEMY_ANIMATION_MAX_SOEJI 5		//エネミーの最後の画像
-#define ENEMY_HIT_TIME 2				//エネミーがウエポンに衝突したら２秒間計測
+#define ENEMY_HIT_TIME				2	//エネミーがウエポンに衝突したら２秒間計測
 
 #define ENEMY_ANIMATION_EXPROSION_FRAME 10			//エネミーアニメーションの描画を切り替えるフレーム数
 #define ENEMY_ANIMATION_EXPROSION_PATTERN 5			//エネミーアニメーションの種類
@@ -54,7 +54,7 @@ public:
 	int ENEMY_ANIMATION_soeji = 0;	//エネミーのアニメーション用添え字
 	int ENEMY_ANIMATION_Handle[ENEMY_ANIMATION_MAX_SOEJI];	//エネミーのアニメーション画像の添え字を入れる配列（要素数はエネミーの画像の最後の添え字分）
 	void ENEMY_ANIMATION_DRAW(int ,int);	//エネミーの爆発アニメーションを描画する関数
-	int ENEMY_COUNT = 0;			//エネミーのアニメーション用カウント
+	int ENEMY_ANIMATION_COUNT = 0;			//エネミーのアニメーション用カウント
 
 	int ENEMY_RANDOM_soeji_Evacuation = 0;
 	//int ENEMY_SPAWN_RANDOM();
