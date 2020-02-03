@@ -7,7 +7,7 @@ int WEAPON_Size;					//ウエポンの画像サイズをLoadDivGrahpで取得するため
 int WEAPON_Size_W, WEAPON_Size_H;	//ウエポン画像の横サイズ、縦サイズを取得
 
 //ウエポンのスピードを取得する関数
-int WEAPON::Get_WEAPON_Speed()
+int WEAPON::Get_WEAPON_Speed(int WEAPON_Speed)
 {
 	//ウエポンのスピード設定
 	WEAPON_Speed = 10;

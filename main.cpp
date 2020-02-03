@@ -9,6 +9,7 @@
 #include "FPS.h"
 #include "DIFFICULTY_LEVEL.h"
 #include "Background_Scroll.h"
+#include "BGM.h"
 //******************************************
 
 //***********************マクロ定義******************************************************************
@@ -63,6 +64,7 @@ SCORE *s = new SCORE();					//スコアのオブジェクトを生成
 DIFFICULTY *Difficulty_Level = new DIFFICULTY();		//難易度変更を設定するクラスを生成する
 CLEARCONDITION *ClearCondition_Level = new CLEARCONDITION();
 BACKGROUND *Background = new BACKGROUND();
+BGM *bgm = new BGM();
 //********************************************************************
 
 //************************画像のサイズを取得する変数**************************************
@@ -88,20 +90,13 @@ int imgBack_Clear = 0;
 
 
 //**********************時間を取得する変数**************************
-int GAME_TITLE_ELAPSEDTIME; //プレイ画面に遷移するまでの時間を計測
+double GAME_TITLE_ELAPSEDTIME = 0; //プレイ画面に遷移するまでの時間を計測
 int Get_WEAPON_Time;
-int Get_Collision_Time;		//エネミーがウエポンにあたった時間を取得する
-int Get_Time = 0;			//GetNowCount()用の変数：起動したら時間を計測する
+double Get_Collision_Time;		//エネミーがウエポンにあたった時間を取得する
+double Get_Time = 0;			//GetNowCount()用の変数：起動したら時間を計測する
 
 //GetNowCount()は起動してから時間を計測するため、プレイ画面に遷移するまでの掛かった時間を引く必要がある
 //GetNowCount() - timerstart = プレイ画面になったら時間を計測する
-
-//*******************************************************************
-
-//****************音を鳴らす変数********************
-int MUSIC_Handle = 0;
-int MUSIC_COLISION_Handle = 0;
-//**************************************************
 
 //***************文字を描画する変数*****************
 int FontHandle_LIMIT = 0;
@@ -220,10 +215,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	fps->FontHandle_FPS = CreateFontToHandle(NULL, 50, 3); //文字の大きさ変更
 
 	//マクロで定義した音楽ファイルをロードし、識別番号をMUSIC_Handleに格納する
-	MUSIC_Handle = LoadSoundMem(PLAY_MUSIC);
+	bgm->MUSIC_Handle = LoadSoundMem(PLAY_MUSIC);
 
 	//マクロで定義した音楽ファイルをロードし、識別番号をMUSIC_COLISION_Handleに格納する
-	MUSIC_COLISION_Handle = LoadSoundMem(COLISION_MUSIC);
+	bgm->MUSIC_COLISION_Handle = LoadSoundMem(COLISION_MUSIC);
 
 	//無限ループ
 	while (TRUE)
@@ -244,11 +239,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		{
 		case GAME_TITLE:		//ゲームタイトル画面
 
+			bgm->PLAY_VOLUME_BGM();
+
 			GAME_TITLE_DRAW();	//タイトル画面を描画
 
 			p->PLAYER_RESET();	//プレイヤーを初期位置へ
-
-		
 
 			//w->WEAPON_RESET();	//ウエポンを初期位置へ
 			for (int e_num = 0, w_cnt = 0; e_num < ENEMY_NUM, w_cnt < WEAPON_NUM; e_num++, w_cnt++)
@@ -266,9 +261,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			GAME_PLAY_DRAW();	//プレイ画面を描画
 
 			count++;
-
 			//ウエポンとエネミーを複数生成する
-			for (int w_cnt = 0, e_num = 0; w_cnt < WEAPON_NUM, e_num < ENEMY_NUM; w_cnt++, e_num++)
+			for (int w_cnt = 0, e_num = 0; e_num < ENEMY_NUM; w_cnt++, e_num++)
 			{
 				p->PLAYER_COLLISION_ENEMY(e[e_num]->ENEMY_X, e[e_num]->ENEMY_Y);		//プレイヤーとエネミーの衝突判定
 				w[w_cnt]->WEAPON_COLLISION_ENEMY(e[e_num]->ENEMY_X, e[e_num]->ENEMY_Y);	//ウエポンとエネミーの衝突判定
@@ -327,11 +321,13 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			DrawFormatStringF(0, 400, RGB(255, 255, 255), "WEAPON_Y[w_cnt]:%d", w[2]->WEAPON_Y);*/
 			//w->WEAPON_DRAW();
 
-			s->DRAW_TOTAL_SCORE();	//トータルスコアを描画
-
+			//トータルスコアを描画
+			s->DRAW_TOTAL_SCORE();
 
 			//制限時間の設定
-			DrawFormatStringToHandle(500, 0, GetColor(150, 255, 255), FontHandle_LIMIT, "LIMIT_TIME：%d秒", (LIMIT_TIME - (Get_Time - GAME_TITLE_ELAPSEDTIME) / 1000));	//文字の大きさ変更);
+			DrawFormatStringToHandle(400, 0, GetColor(150, 255, 255), FontHandle_LIMIT, "LIMIT_TIME：%0.3lf秒", (LIMIT_TIME - (Get_Time - GAME_TITLE_ELAPSEDTIME) / 1000));	//文字の大きさ変更);
+
+			//DrawFormatStringToHandle(100, 0, GetColor(150, 255, 255), FontHandle_LIMIT, "LIMIT_TIME：%d秒", (Get_Time - GAME_TITLE_ELAPSEDTIME) / 1000);	//文字の大きさ変更);
 
 			//クリア条件の変更
 			DrawExtendGraph(0, 0, GAME_WIDTH, GAME_HEIGHT, ClearCondition_Level->TimeMode_Play_flag, false);
@@ -414,8 +410,8 @@ void GAME_TITLE_DRAW()
 	//タイトル画面でEasy,Normal,Hardを変更した値を基に難易度変更を実施する関数
 	Difficulty_Level->DIFFICULTY_LEVEL_PLAY();	
 
-	//プレイ画面に遷移したら音楽ファイルを鳴らす(DX_PLAYTYPE_LOOP:最後まで音楽ファイルを鳴らしたら、初めからまた鳴らす)
-	PlaySoundMem(MUSIC_Handle, DX_PLAYTYPE_LOOP);
+	//プレイ画面で音楽を鳴らす関数
+	bgm->PLAY_BGM();
 
 	//エンターキーが押されたら
 	if (Keyboard_Get(KEY_INPUT_RETURN) == 1)
@@ -440,7 +436,8 @@ void GAME_PLAY_DRAW()
 	//エンド画面へ遷移する条件を描画
 	//DrawStringToHandle(0, 0, "プレイ スペースでエンド画面へ", RGB(255, 255, 255), FontHandle_ScreenTransition);
 
-	p->PLAYER_HP_DRAW();	//プレイヤーのHPを描画する関数
+	//プレイヤーのHPを描画する関数
+	p->PLAYER_HP_DRAW();
 
 	//制限時間が0秒になったら(スコアモードのとき)
 	if (LIMIT_TIME - (Get_Time - GAME_TITLE_ELAPSEDTIME) / 1000 <= PLAY_END_TIME && ClearCondition_Level->ScoreMode_Play_flag == true)
@@ -470,6 +467,7 @@ void GAME_PLAY_DRAW()
 //クリア画面を描画する関数
 void GAME_CLEAR_DRAW() 
 {
+	//クリア画面用の背景を描画
 	DrawExtendGraph(0, 0, GAME_WIDTH, GAME_HEIGHT, imgBack_Clear, false);
 
 	DrawStringToHandle(0, 0, "クリア　バックスペースでタイトル画面へ", RGB(0, 0, 255), FontHandle_ScreenTransition);
@@ -556,6 +554,7 @@ void PLAYER::PLAYER_COLLISION_ENEMY(int ENEMY_X, int ENEMY_Y)
 //ウエポンのX位置を取得
 int WEAPON::Get_WEAPON_X()
 {
+	//Aキーを押したとき
 	if (Keyboard_Get(KEY_INPUT_A) >= 1)
 	{
 		for (int w_cnt = 0; w_cnt < WEAPON_NUM; w_cnt++)
@@ -579,69 +578,89 @@ int WEAPON::Get_WEAPON_X()
 //ウエポンのY位置を取得する関数
 int WEAPON::Get_WEAPON_Y()
 {
-	
 		//WEAPON_Y = Get_PLAYER_Y() - WEAPON_Size_H / WEAPON_BUNKATU_Y;
 	
 		//A キーを押したとき、自動でY座標を加算するためのフラグ
-		//Get_WEAPON_Time = Get_Time;
+	
+		
+	//ウエポンを操作する　A　キーを押した場合
+	if (Keyboard_Get(KEY_INPUT_A) >= 1 && count % 30 == 0) //)
+	{
 		for (int w_cnt = 0; w_cnt < WEAPON_NUM; w_cnt++)
 		{
-			//ウエポンを操作する　A　キーを押した場合
-			if (Keyboard_Get(KEY_INPUT_A) >= 1 && count % 30 == 0) //)
-			{
-				if (w[w_cnt]->WEAPON_flag_Y == false)
-				{
-					//if ( 2 - (Get_Time - Get_WEAPON_Time) / 1000 == PLAY_END_TIME)
-					//{ 
+			//if (w[w_cnt]->WEAPON_flag_Y == false)
+			//{
+				//if (0.5 - (Get_Time - Get_WEAPON_Time) / 1000 == PLAY_END_TIME)
+				//{ 
 					w[w_cnt]->WEAPON_flag_X = true;		//A	キーを押したとき、プレイヤーのX座標を取得するためのフラグ
 					w[w_cnt]->WEAPON_flag_Y = true;		//A キーを押したとき、自動でY座標を加算するためのフラグ
 					/*w[w_cnt]->WEAPON_X = p->PLAYER_X;
 					w[w_cnt]->WEAPON_Y = p->PLAYER_Y;*/
 
-
 					//w[w_cnt]->WEAPON_Next_flag = true;
 					//Get_WEAPON_Time = Get_Time;
-					//}
-				}
-			}
+				//}
+			//}
+		}
+	}
 
-			if (w[w_cnt]->WEAPON_flag_Y == false)
-			{
-				w[w_cnt]->WEAPON_Y = p->PLAYER_Y;		//ウエポンのYフラグがfalseのとき、ウエポンのY座標をプレイヤーのY座標と同じにする
-			}
+	//A キーを押したとき、自動でY座標を加算するためのフラグ
+	//if (w[0]->WEAPON_flag_Y == true)
+	//{
+	//	WEAPON_Y -= 5;//w[0]->Get_WEAPON_Speed(WEAPON_Speed);
+	//}
 
-			//A キーを押したとき、自動でY座標を加算するためのフラグ
+	/*if (w[1]->WEAPON_flag_Y == true)
+	{
+		w[1]->WEAPON_Y -= w[1]->Get_WEAPON_Speed(WEAPON_Speed);
+	}
+
+	if (w[2]->WEAPON_flag_Y == true)
+	{
+		w[2]->WEAPON_Y -= w[2]->Get_WEAPON_Speed(WEAPON_Speed);
+	}*/
+
+
+	for (int w_cnt = 0; w_cnt < WEAPON_NUM; w_cnt++)
+	{
+		if (w[w_cnt]->WEAPON_flag_Y == false)
+		{
+			w[w_cnt]->WEAPON_Y = p->PLAYER_Y;		//ウエポンのYフラグがfalseのとき、ウエポンのY座標をプレイヤーのY座標と同じにする
+		}
+		
+		//A キーを押したとき、自動でY座標を加算するためのフラグ
+		if (w[w_cnt]->WEAPON_flag_Y == true)
+		{
+			WEAPON_Y -= w[w_cnt]->Get_WEAPON_Speed(WEAPON_Speed);
+		}
+		
+		if (w[w_cnt]->WEAPON_flag_X == true && w[w_cnt]->WEAPON_Y == p->PLAYER_Y)// - (WEAPON_Size_H / WEAPON_BUNKATU_Y))
+		{
+			//ウエポンのX座標をプレイヤーのX座標と同じ値にする
+			w[w_cnt]->WEAPON_X = p->PLAYER_X;
+
+			///ウエポンのXフラグをfalseに変更する
+			w[w_cnt]->WEAPON_flag_X = false;
+		}
+
+		//ウエポン画像のY座標が画面外(0よりも低い値)に到達したとき //描画処理でずらしたY座標を調整
+		if (w[w_cnt]->WEAPON_Y + (PLAYER_Size_H / PLAYER_BUNKATU_Y / 2) < GAME_MIN_HEIGHT)
+		{
+			//ウエポンのY座標をプレイヤーのY座標から、ウエポン画像サイズから分割し、引いた値にする
+			//(ウエポンの画像をプレイヤーの頭上に配置するため)
 			if (w[w_cnt]->WEAPON_flag_Y == true)
 			{
-				WEAPON_Y -= Get_WEAPON_Speed();
-			}
-
-			if (w[w_cnt]->WEAPON_flag_X == true && w[w_cnt]->WEAPON_Y == p->PLAYER_Y)// - (WEAPON_Size_H / WEAPON_BUNKATU_Y))
-			{
-				//ウエポンのX座標をプレイヤーのX座標と同じ値にする
+				//w[w_cnt]->WEAPON_Y = p->PLAYER_Y - (WEAPON_Size_H / WEAPON_BUNKATU_Y);
+				w[w_cnt]->WEAPON_Y = p->PLAYER_Y;
 				w[w_cnt]->WEAPON_X = p->PLAYER_X;
 
-				///ウエポンのXフラグをfalseに変更する
-				w[w_cnt]->WEAPON_flag_X = false;
+				//ウエポンのYフラグをfalseに変更する
+				w[w_cnt]->WEAPON_flag_Y = false;
+				//w[w_cnt]->WEAPON_Next_flag = false;
 			}
 
-
-			//ウエポン画像のY座標が画面外(0よりも低い値)に到達したとき //描画処理でずらしたY座標を調整
-			if (w[w_cnt]->WEAPON_Y + (PLAYER_Size_H / PLAYER_BUNKATU_Y / 2) < GAME_MIN_HEIGHT)
-			{
-				//ウエポンのY座標をプレイヤーのY座標から、ウエポン画像サイズから分割し、引いた値にする
-				//(ウエポンの画像をプレイヤーの頭上に配置するため)
-				if (w[w_cnt]->WEAPON_flag_Y == true)
-				{
-					//w[w_cnt]->WEAPON_Y = p->PLAYER_Y - (WEAPON_Size_H / WEAPON_BUNKATU_Y);
-					w[w_cnt]->WEAPON_Y = p->PLAYER_Y;
-					w[w_cnt]->WEAPON_X = p->PLAYER_X;
-
-					//ウエポンのYフラグをfalseに変更する
-					w[w_cnt]->WEAPON_flag_Y = false;
-					//w[w_cnt]->WEAPON_Next_flag = false;
-				}
-			}
+		}
+	}
 
 
 			//ウエポンのYフラグが(Aキーを押した)trueかつ、ウエポンのY座標が(0以上)画面内なら
@@ -651,8 +670,6 @@ int WEAPON::Get_WEAPON_Y()
 				w[w_cnt]->WEAPON_Next_flag = false;
 			}*/
 
-		}
-	
 	
 	//for (int w_cnt = 0; w_cnt < WEAPON_NUM; w_cnt++)
 	//{
@@ -681,8 +698,12 @@ void WEAPON::WEAPON_COLLISION_ENEMY(int ENEMY_X, int ENEMY_Y)
 					((w[w_cnt]->WEAPON_Y > e[e_num]->ENEMY_Y && w[w_cnt]->WEAPON_Y < e[e_num]->ENEMY_Y + ENEMY_Size_H / ENEMY_BUNKATU_Y) ||
 					(e[e_num]->ENEMY_Y > w[w_cnt]->WEAPON_Y && e[e_num]->ENEMY_Y < w[w_cnt]->WEAPON_Y + WEAPON_Size_H / WEAPON_BUNKATU_Y)))
 				{
-					PlaySoundMem(MUSIC_COLISION_Handle, DX_PLAYTYPE_BACK);
+					//PlaySoundMem(bgm->MUSIC_COLISION_Handle, DX_PLAYTYPE_BACK);
 					//ウエポンに触れたエネミーの位置や画像の添え字をリセットする
+
+					//プレイ画面で敵とウエポンが衝突したときの音楽を鳴らす関数
+					bgm->PLAY_COLISION_BGM();
+
 					e[e_num]->ENEMY_RESET();
 
 					w[w_cnt]->WEAPON_flag_X = false;		//A	キーを押したとき、プレイヤーのX座標を取得するためのフラグ
@@ -774,13 +795,13 @@ void CLEARCONDITION::CLEAR_CONDITION_SELECT_PLAY()
 	{
 		TimeMode_Play_flag = true;		//タイム制フラグ:ON
 		ScoreMode_Play_flag = false;	//スコア制フラグ:OFF
-		screen_state = GAME_PLAY;	//シーンをゲーム画面に変更
+		screen_state = GAME_PLAY;		//シーンをゲーム画面に変更
 	}
 
 	if (Keyboard_Get(KEY_INPUT_RETURN) == 1 && ClearCondition_Select == ClearCondition_Select_SCORE)
 	{
 		TimeMode_Play_flag = false;		//タイム制フラグ:OFF
 		ScoreMode_Play_flag = true;		//スコア制フラグ:ON
-		screen_state = GAME_PLAY;	//シーンをゲーム画面に変更
+		screen_state = GAME_PLAY;		//シーンをゲーム画面に変更
 	}
 }

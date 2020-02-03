@@ -26,7 +26,7 @@ public:
 	int WEAPON_Y;							//ウエポン画像のY位置をプレイヤーのY位置引いた値とする(プレイヤーの上にくるようにする)
 	int WEAPON_soeji = 0;					//ウエポン画像の添え字
 
-	int Get_WEAPON_Speed();			//ウエポンのスピードを取得取得する関数
+	int Get_WEAPON_Speed(int WEAPON_Speed);			//ウエポンのスピードを取得取得する関数
 	int Get_WEAPON_Y();				//ウエポンのX位置を取得取得する関数
 	int Get_WEAPON_X();				//ウエポンのY位置を取得取得する関数
 	void WEAPON_DRAW(int, int);				//ウエポンを描画する関数

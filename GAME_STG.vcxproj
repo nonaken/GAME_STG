@@ -146,6 +146,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Background_Scroll.cpp" />
+    <ClCompile Include="BGM.cpp" />
     <ClCompile Include="DIFFICULTY_LEVEL.cpp" />
     <ClCompile Include="ENEMY.cpp" />
     <ClCompile Include="FPS.cpp" />
@@ -157,6 +158,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Background_Scroll.h" />
+    <ClInclude Include="BGM.h" />
     <ClInclude Include="DIFFICULTY_LEVEL.h" />
     <ClInclude Include="PLAYER.h" />
     <ClInclude Include="ENEMY.h" />
