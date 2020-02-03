@@ -27,7 +27,7 @@ public:
 	int PLAYER_Handle[PLAYER_MAX_SOEJI];//プレイヤーのハンドル
 	int FontHandle_PLAYER_HP = 0;		//プレイヤーのHPを描画するフォントハンドル用変数
 
-	bool PLAYRE_MOVE_flag = false;
+	bool PLAYER_MOVE_flag = false;
 
 	int Get_PLAYER_Speed();				//プレイヤーのスピードを関数で取得
 	int Get_PLAYER_X();					//プレイヤーのX位置を関数で取得

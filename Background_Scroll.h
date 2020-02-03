@@ -1,5 +1,11 @@
 #pragma once
 
+#define GAME_BackImage_TITLE	"BackImage\\”wŒi.png"//"BackImage\\kaidou0331_800b.jpg"	//ƒ^ƒCƒgƒ‹‰æ–Ê”wŒi‰æ‘œ
+#define GAME_TITLE_LOG			"BackImage\\game_title_font.png"	//ƒ^ƒCƒgƒ‹ƒƒS
+#define GAME_BackImage_PLAY		"BackImage\\”wŒi.png"				//ƒvƒŒƒC‰æ–Ê”wŒi‰æ‘œ
+#define GAME_BackImage_CLEAR	"BackImage\\GAME_CLEAR.jpg"			//ƒNƒŠƒA‰æ–Ê”wŒi‰æ‘œ
+#define GAME_BackImage_END		"BackImage\\GAME_OVER_2.jpg"			//ƒGƒ“ƒh‰æ–Ê”wŒi‰æ‘œ
+
 class BACKGROUND
 {
 public:

@@ -13,11 +13,7 @@
 //******************************************
 
 //***********************マクロ定義******************************************************************
-#define GAME_BackImage_TITLE	"BackImage\\背景.png"//"BackImage\\kaidou0331_800b.jpg"	//タイトル画面背景画像
-#define GAME_TITLE_LOG			"BackImage\\game_title_font.png"	//タイトルロゴ
-#define GAME_BackImage_PLAY		"BackImage\\背景.png"				//プレイ画面背景画像
-#define GAME_BackImage_CLEAR	"BackImage\\GAME_CLEAR.jpg"			//クリア画面背景画像
-#define GAME_BackImage_END		"BackImage\\GAME_OVER_2.jpg"			//エンド画面背景画像
+
 
 #define GAME_FPS_SPEED		60			//FPSを設定
 
@@ -29,8 +25,7 @@
 #define LIMIT_TIME 60 //制限時間 
 #define PLAY_END_TIME 0 //終了時間
 
-#define PLAY_MUSIC "MUSIC\\crying again.mp3"		//ミュージックを取り込む
-#define COLISION_MUSIC "MUSIC\\colision.mp3"		//ミュージックを取り込む
+
 //*****************************************************************************************************
 
 //****************列挙型************:
@@ -91,7 +86,7 @@ int imgBack_Clear = 0;
 
 //**********************時間を取得する変数**************************
 double GAME_TITLE_ELAPSEDTIME = 0; //プレイ画面に遷移するまでの時間を計測
-int Get_WEAPON_Time;
+double Get_WEAPON_Time = 0;
 double Get_Collision_Time;		//エネミーがウエポンにあたった時間を取得する
 double Get_Time = 0;			//GetNowCount()用の変数：起動したら時間を計測する
 
@@ -214,11 +209,24 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	//FPS描画用のフォントハンドルを作成
 	fps->FontHandle_FPS = CreateFontToHandle(NULL, 50, 3); //文字の大きさ変更
 
-	//マクロで定義した音楽ファイルをロードし、識別番号をMUSIC_Handleに格納する
-	bgm->MUSIC_Handle = LoadSoundMem(PLAY_MUSIC);
+
+	//マクロで定義した音楽ファイルをロードし、識別番号をMUSIC_TITLE_Handleに格納する
+	bgm->MUSIC_TITLE_Handle = LoadSoundMem(TITLE_MUSIC);
+
+	//マクロで定義した音楽ファイルをロードし、識別番号をMUSIC_PLAY_Handleに格納する
+	bgm->MUSIC_PLAY_Handle = LoadSoundMem(PLAY_MUSIC);
+
+	//マクロで定義した音楽ファイルをロードし、識別番号をMUSIC_GAMEOVER_Handleに格納する
+	bgm->MUSIC_GAMEOVER_Handle = LoadSoundMem(GAMEOVER_MUSIC);
+
+	//マクロで定義した音楽ファイルをロードし、識別番号をMUSIC_GAMECLEAR_Handleに格納する
+	bgm->MUSIC_GAMECLEAR_Handle = LoadSoundMem(GAMECLEAR_MUSIC);
 
 	//マクロで定義した音楽ファイルをロードし、識別番号をMUSIC_COLISION_Handleに格納する
 	bgm->MUSIC_COLISION_Handle = LoadSoundMem(COLISION_MUSIC);
+
+	//タイトル画面でbgmを鳴らす関数
+	bgm->TITLE_BGM();
 
 	//無限ループ
 	while (TRUE)
@@ -234,14 +242,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 		//現在の時間を取得
 		Get_Time = GetNowCount();
 
+		//音量を調節する関数
+		bgm->VOLUME_BGM();
+		
+		
 		//ウィンドウのシーン状態
 		switch (screen_state)
 		{
 		case GAME_TITLE:		//ゲームタイトル画面
 
-			bgm->PLAY_VOLUME_BGM();
-
-			GAME_TITLE_DRAW();	//タイトル画面を描画
+			GAME_TITLE_DRAW();	//タイトル画面を描画する関数
 
 			p->PLAYER_RESET();	//プレイヤーを初期位置へ
 
@@ -340,6 +350,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			break;
 		
 		case GAME_END:			//ゲームエンド画面
+			
 			GAME_END_DRAW();	//エンド画面を描画
 			s->DRAW_TOTAL_SCORE();	//トータルスコアを描画
 			break;
@@ -380,6 +391,12 @@ void GAME_TITLE_DRAW()
 	//タイトル画像の背景画像を描画する
 	//DrawExtendGraph(0, 0, GAME_WIDTH, GAME_HEIGHT, imgBack_Title, false);
 
+	//BGMを止める関数(ゲームオーバー画面bgm)
+	bgm->STOP_GAMEOVER_BGM();
+
+	//BGMを止める関数(ゲームクリア画面bgm)
+	bgm->STOP_GAMECLEAR_BGM();
+
 	//スクロールする背景画像を描画する関数
 	Background->Background_Scroll_Draw();
 	
@@ -410,14 +427,18 @@ void GAME_TITLE_DRAW()
 	//タイトル画面でEasy,Normal,Hardを変更した値を基に難易度変更を実施する関数
 	Difficulty_Level->DIFFICULTY_LEVEL_PLAY();	
 
-	//プレイ画面で音楽を鳴らす関数
-	bgm->PLAY_BGM();
-
+	
 	//エンターキーが押されたら
 	if (Keyboard_Get(KEY_INPUT_RETURN) == 1)
 	{
 		//プレイ画面へ遷移する
 		screen_state = GAME_PLAY;
+
+		//BGMを止める関数(タイトル画面bgm)
+		bgm->STOP_TITLE_BGM();
+
+		//プレイ画面で音楽を鳴らす関数
+		bgm->PLAY_BGM();
 
 		//プレイ画面へ遷移するとき、タイトル画面でかかった時間を変数に入れる
 		GAME_TITLE_ELAPSEDTIME = Get_Time;
@@ -442,24 +463,32 @@ void GAME_PLAY_DRAW()
 	//制限時間が0秒になったら(スコアモードのとき)
 	if (LIMIT_TIME - (Get_Time - GAME_TITLE_ELAPSEDTIME) / 1000 <= PLAY_END_TIME && ClearCondition_Level->ScoreMode_Play_flag == true)
 	{
+		//ゲームオーバー画面でbgmを鳴らす関数
+		bgm->GAMEOVER_BGM();
 		screen_state = GAME_END;	//エンド画面へ遷移する
 	}
 
 	//制限時間が0秒になったら(タイムモードのとき)
 	if (LIMIT_TIME - (Get_Time - GAME_TITLE_ELAPSEDTIME) / 1000 <= PLAY_END_TIME && ClearCondition_Level->TimeMode_Play_flag == true)
 	{
+		//ゲームオーバー画面でbgmを鳴らす関数
+		bgm->GAMECLEAR_BGM();
 		screen_state = GAME_CLEAR;	//クリア画面へ遷移する
 	}
 
 	//スペースキーが押されたら
 	if (Keyboard_Get(KEY_INPUT_SPACE) == 1)
 	{
+		//ゲームオーバー画面でbgmを鳴らす関数
+		bgm->GAMEOVER_BGM();
 		screen_state = GAME_END;		//エンド画面へ遷移する
 	}
 
 	//トータルスコア
 	if (s->total_score >= GAME_CLEAR_SCORE)
 	{
+		//ゲームクリア画面でbgmを鳴らす関数
+		bgm->GAMECLEAR_BGM();
 		screen_state = GAME_CLEAR;		//エンド画面へ遷移する
 	}
 }
@@ -467,6 +496,9 @@ void GAME_PLAY_DRAW()
 //クリア画面を描画する関数
 void GAME_CLEAR_DRAW() 
 {
+	//BGMを止める関数(プレイ画面bgm)
+	bgm->STOP_PLAY_BGM();
+
 	//クリア画面用の背景を描画
 	DrawExtendGraph(0, 0, GAME_WIDTH, GAME_HEIGHT, imgBack_Clear, false);
 
@@ -475,6 +507,8 @@ void GAME_CLEAR_DRAW()
 	//バックスペースキーが押されたら
 	if (Keyboard_Get(KEY_INPUT_BACK) == 1)
 	{
+		//タイトル画面でbgmを鳴らす関数
+		bgm->TITLE_BGM();
 		screen_state = GAME_TITLE;		//タイトル画面へ遷移する
 	}
 
@@ -493,6 +527,8 @@ void GAME_CLEAR_DRAW()
 //エンド画面を描画する関数
 void GAME_END_DRAW()
 {
+	//BGMを止める関数(プレイ画面bgm)
+	bgm->STOP_PLAY_BGM();
 
 	//エンド画面の背景画像を描画する
 	DrawExtendGraph(0, 0, GAME_WIDTH, GAME_HEIGHT, imgBack_End, false);
@@ -502,6 +538,8 @@ void GAME_END_DRAW()
 	//バックスペースキーが押されたら
 	if (Keyboard_Get(KEY_INPUT_BACK) == 1)
 	{
+		//タイトル画面でbgmを鳴らす関数
+		bgm->TITLE_BGM();
 		screen_state = GAME_TITLE;		//タイトル画面へ遷移する
 	}
 
@@ -547,6 +585,8 @@ void PLAYER::PLAYER_COLLISION_ENEMY(int ENEMY_X, int ENEMY_Y)
 			//プレイヤーに触れたエネミーの位置や画像の添え字をリセットする
 			e[e_num]->ENEMY_RESET();
 		}
+		//ゲームオーバー画面でbgmを鳴らす関数
+		bgm->GAMEOVER_BGM();
 		screen_state = GAME_END;		//エンド画面へ遷移する
 	}
 }
@@ -581,26 +621,30 @@ int WEAPON::Get_WEAPON_Y()
 		//WEAPON_Y = Get_PLAYER_Y() - WEAPON_Size_H / WEAPON_BUNKATU_Y;
 	
 		//A キーを押したとき、自動でY座標を加算するためのフラグ
-	
-		
-	//ウエポンを操作する　A　キーを押した場合
-	if (Keyboard_Get(KEY_INPUT_A) >= 1 && count % 30 == 0) //)
+	if (Keyboard_Get(KEY_INPUT_A) == 1)//&& count % 30 == 0) //)
 	{
-		for (int w_cnt = 0; w_cnt < WEAPON_NUM; w_cnt++)
+		Get_WEAPON_Time = Get_Time;
+	}
+	
+		//ウエポンを操作する　A　キーを押した場合
+	
+	for (int w_cnt = 0; w_cnt < WEAPON_NUM; w_cnt++)
+	{
+		if (w[w_cnt]->WEAPON_flag_Y == false)
 		{
-			//if (w[w_cnt]->WEAPON_flag_Y == false)
-			//{
-				//if (0.5 - (Get_Time - Get_WEAPON_Time) / 1000 == PLAY_END_TIME)
-				//{ 
-					w[w_cnt]->WEAPON_flag_X = true;		//A	キーを押したとき、プレイヤーのX座標を取得するためのフラグ
-					w[w_cnt]->WEAPON_flag_Y = true;		//A キーを押したとき、自動でY座標を加算するためのフラグ
-					/*w[w_cnt]->WEAPON_X = p->PLAYER_X;
-					w[w_cnt]->WEAPON_Y = p->PLAYER_Y;*/
+			
 
-					//w[w_cnt]->WEAPON_Next_flag = true;
-					//Get_WEAPON_Time = Get_Time;
-				//}
-			//}
+			if (0.1 - (Get_Time - Get_WEAPON_Time) / 1000 <= PLAY_END_TIME)
+			{
+				w[w_cnt]->WEAPON_flag_X = true;		//A	キーを押したとき、プレイヤーのX座標を取得するためのフラグ
+				w[w_cnt]->WEAPON_flag_Y = true;		//A キーを押したとき、自動でY座標を加算するためのフラグ
+				/*w[w_cnt]->WEAPON_X = p->PLAYER_X;
+				w[w_cnt]->WEAPON_Y = p->PLAYER_Y;*/
+
+				Get_WEAPON_Time = Get_Time;
+				//w[w_cnt]->WEAPON_Next_flag = true;
+
+			}
 		}
 	}
 
@@ -631,7 +675,7 @@ int WEAPON::Get_WEAPON_Y()
 		//A キーを押したとき、自動でY座標を加算するためのフラグ
 		if (w[w_cnt]->WEAPON_flag_Y == true)
 		{
-			WEAPON_Y -= w[w_cnt]->Get_WEAPON_Speed(WEAPON_Speed);
+			WEAPON_Y -= Get_WEAPON_Speed(WEAPON_Speed);
 		}
 		
 		if (w[w_cnt]->WEAPON_flag_X == true && w[w_cnt]->WEAPON_Y == p->PLAYER_Y)// - (WEAPON_Size_H / WEAPON_BUNKATU_Y))

@@ -27,32 +27,28 @@ int PLAYER::Get_PLAYER_Speed()
 //プレイヤーのX位置を取得する関数
 int PLAYER::Get_PLAYER_X()
 {
-	if (Keyboard_Get(KEY_INPUT_LEFT) == 0 && Keyboard_Get(KEY_INPUT_RIGHT) == 0
-		&& Keyboard_Get(KEY_INPUT_LEFT) == 0 && Keyboard_Get(KEY_INPUT_LEFT) == 0)
-	{
-		PLAYER_soeji = PLAYER_UP_SOEJI;
-	}
 
 	if (Keyboard_Get(KEY_INPUT_LEFT) >= 1 && Keyboard_Get(KEY_INPUT_UP) >= 1 ||
 		Keyboard_Get(KEY_INPUT_LEFT) >= 1 && Keyboard_Get(KEY_INPUT_DOWN) >= 1 ||
 		Keyboard_Get(KEY_INPUT_RIGHT) >= 1 && Keyboard_Get(KEY_INPUT_UP) >= 1 ||
 		Keyboard_Get(KEY_INPUT_RIGHT) >= 1 && Keyboard_Get(KEY_INPUT_DOWN) >= 1 ||
-		Keyboard_Get(KEY_INPUT_LEFT) >= 1 && Keyboard_Get(KEY_INPUT_RIGHT) >= 1 
-		|| Keyboard_Get(KEY_INPUT_UP) == 0 && Keyboard_Get(KEY_INPUT_DOWN) == 0
-		&& Keyboard_Get(KEY_INPUT_RIGHT) == 0 && Keyboard_Get(KEY_INPUT_LEFT) == 0)
+		Keyboard_Get(KEY_INPUT_LEFT) >= 1 && Keyboard_Get(KEY_INPUT_RIGHT) >= 1 ||
+		Keyboard_Get(KEY_INPUT_LEFT) == 0 && Keyboard_Get(KEY_INPUT_RIGHT) == 0
+		&& Keyboard_Get(KEY_INPUT_UP) == 0 && Keyboard_Get(KEY_INPUT_DOWN) == 0)
 	{
-		PLAYRE_MOVE_flag = false;
+		PLAYER_MOVE_flag = false;
+		PLAYER_soeji = PLAYER_UP_SOEJI;
 	}
 
 
 	//プレイヤーを操作する　左　矢印キーを押した場合
 	else if (Keyboard_Get(KEY_INPUT_LEFT) >= 1)
 	{
-		PLAYRE_MOVE_flag = true;
+		PLAYER_MOVE_flag = true;
 		//windowの左端まで移動する
 		if (PLAYER_X >= GAME_MIN_WIDTH)
 		{
-			if (PLAYRE_MOVE_flag == true)
+			if (PLAYER_MOVE_flag == true)
 			{
 				PLAYER_X -= Get_PLAYER_Speed();
 
@@ -71,11 +67,11 @@ int PLAYER::Get_PLAYER_X()
 	//プレイヤーを操作する　右　矢印キーを押した場合
 	else if (Keyboard_Get(KEY_INPUT_RIGHT) >= 1)
 	{
-		PLAYRE_MOVE_flag = true;
+		PLAYER_MOVE_flag = true;
 		//windowの右端まで移動する(プレイヤーの画像横サイズ分、値を減らす)　
 		if (PLAYER_X <= GAME_WIDTH - PLAYER_Size_W / PLAYER_BUNKATU_X)
 		{
-			if (PLAYRE_MOVE_flag == true)
+			if (PLAYER_MOVE_flag == true)
 			{
 				PLAYER_X += Get_PLAYER_Speed();
 
@@ -100,15 +96,23 @@ int PLAYER::Get_PLAYER_X()
 //プレイヤーのY位置を取得する関数
 int PLAYER::Get_PLAYER_Y()
 {
-	
-	//プレイヤーを操作する　上　矢印キーを押した場合
-	if (Keyboard_Get(KEY_INPUT_UP) >= 1)
+
+	if (Keyboard_Get(KEY_INPUT_LEFT) >= 1 && Keyboard_Get(KEY_INPUT_UP) >= 1 ||
+		Keyboard_Get(KEY_INPUT_LEFT) >= 1 && Keyboard_Get(KEY_INPUT_DOWN) >= 1 ||
+		Keyboard_Get(KEY_INPUT_RIGHT) >= 1 && Keyboard_Get(KEY_INPUT_UP) >= 1 ||
+		Keyboard_Get(KEY_INPUT_RIGHT) >= 1 && Keyboard_Get(KEY_INPUT_DOWN) >= 1 ||
+		Keyboard_Get(KEY_INPUT_UP) >= 1 && Keyboard_Get(KEY_INPUT_DOWN) >= 1)
 	{
-		PLAYRE_MOVE_flag = true;
+		PLAYER_MOVE_flag = false;
+	}
+	//プレイヤーを操作する　上　矢印キーを押した場合
+	else if (Keyboard_Get(KEY_INPUT_UP) >= 1)
+	{
+		PLAYER_MOVE_flag = true;
 		//windowの上端まで移動する
 		if (PLAYER_Y >= GAME_MIN_HEIGHT)
 		{
-			if (PLAYRE_MOVE_flag == true)
+			if (PLAYER_MOVE_flag == true)
 			{
 				PLAYER_Y -= Get_PLAYER_Speed();
 
@@ -121,13 +125,13 @@ int PLAYER::Get_PLAYER_Y()
 		}
 	}
 	//プレイヤーを操作する　下　矢印キーを押した場合
-	if (Keyboard_Get(KEY_INPUT_DOWN) >= 1)
+	else if (Keyboard_Get(KEY_INPUT_DOWN) >= 1)
 	{
-		PLAYRE_MOVE_flag = true;
+		PLAYER_MOVE_flag = true;
 		//windowの下端まで移動する(プレイヤーの画像縦サイズ分、値を減らす)
 		if (PLAYER_Y <= GAME_HEIGHT - PLAYER_Size_H / PLAYER_BUNKATU_Y)
 		{
-			if (PLAYRE_MOVE_flag == true)
+			if (PLAYER_MOVE_flag == true)
 			{
 				PLAYER_Y += Get_PLAYER_Speed();
 
@@ -138,12 +142,6 @@ int PLAYER::Get_PLAYER_Y()
 				PLAYER_soeji = PLAYER_DOWN_SOEJI + (PLAYER_COUNT / PLAYER_ANIMATION_FRAME) % PLAYER_ANIMETION_PATTERN;
 			}
 		}
-	}
-
-	//プレイヤーを操作する　右　矢印キーを押した場合
-	if (Keyboard_Get(KEY_INPUT_UP) >= 1 && Keyboard_Get(KEY_INPUT_DOWN) >= 1)
-	{
-		PLAYER_soeji = PLAYER_UP_SOEJI;
 	}
 	return PLAYER_Y;
 }
