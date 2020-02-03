@@ -70,8 +70,10 @@ extern int ENEMY_Size_W, ENEMY_Size_H;		//エネミー画像の横サイズ、縦サイズを取得
 extern int WEAPON_Size;						//ウエポン画像のサイズをLoadDivGrahpで取得するため	(ENEMY.cppでも同じ変数を利用するため、externを使用している)
 extern int WEAPON_Size_W, WEAPON_Size_H;	//エネミー画像の横サイズ、縦サイズを取得			(ENEMY.cppでも同じ変数を利用するため、externを使用している)
 
-extern int ENEMY_ANIMATION_Size;						//エネミー画像のサイズをLoadDivGrahpで取得するため	(ENEMY.cppでも同じ変数を利用するため、externを使用している)
-extern int ENEMY_ANIMATION_Size_W, ENEMY_ANIMATION_Size_H;		//エネミー画像の横サイズ、縦サイズを取得	(ENEMY.cppでも同じ変数を利用するため、externを使用している)
+extern int ENEMY_ANIMATION_Size;						//エネミーの爆発アニメーション画像のサイズをLoadDivGrahpで取得するため	(ENEMY.cppでも同じ変数を利用するため、externを使用している)
+extern int ENEMY_ANIMATION_Size_W, ENEMY_ANIMATION_Size_H;		//エネミーの爆発アニメーション画像の横サイズ、縦サイズを取得	(ENEMY.cppでも同じ変数を利用するため、externを使用している)
+extern int PLAYER_HIT_ANIMATION_Size;						//プレイヤーの無敵アニメーション画像のサイズをLoadDivGrahpで取得するため	(ENEMY.cppでも同じ変数を利用するため、externを使用している)
+extern int PLAYER_HIT_ANIMATION_Size_W, PLAYER_HIT_ANIMATION_Size_H;		//プレイヤーの無敵アニメーション画像の横サイズ、縦サイズを取得	(ENEMY.cppでも同じ変数を利用するため、externを使用している)
 
 //*******************************************************************************************
 
@@ -89,9 +91,10 @@ double GAME_TITLE_ELAPSEDTIME = 0; //プレイ画面に遷移するまでの時間を計測
 double Get_WEAPON_Time = 0;
 double Get_Collision_Time;		//エネミーがウエポンにあたった時間を取得する
 double Get_Time = 0;			//GetNowCount()用の変数：起動したら時間を計測する
-
+double GAME_PLAYER_HIT_TIME = 0;//プレイヤーがエネミーに触れたときの時間を取得する変数
 //GetNowCount()は起動してから時間を計測するため、プレイ画面に遷移するまでの掛かった時間を引く必要がある
 //GetNowCount() - timerstart = プレイ画面になったら時間を計測する
+//*********************************************************************
 
 //***************文字を描画する変数*****************
 int FontHandle_LIMIT = 0;
@@ -122,6 +125,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	//プレイヤー画像を指定した分割数、サイズで読み込む
 	LoadDivGraph(GAME_PLAYER, PLAYER_BUNKATU, PLAYER_BUNKATU_X, PLAYER_BUNKATU_Y, PLAYER_Size_W / PLAYER_BUNKATU_X, PLAYER_Size_H / PLAYER_BUNKATU_Y, &p->PLAYER_Handle[0]);
 	
+
+	PLAYER_HIT_ANIMATION_Size = LoadGraph(PLAYER_HIT_INVINCIBLE_ANIMATION);	//プレイヤー画像の縦と横のサイズを取得するためロードする(すぐに捨てる)
+
+	GetGraphSize(PLAYER_HIT_ANIMATION_Size, &PLAYER_HIT_ANIMATION_Size_W, &PLAYER_HIT_ANIMATION_Size_H);	//プレイヤー画像の縦と横のサイズを取得
+
+	DeleteGraph(PLAYER_HIT_ANIMATION_Size);				//プレイヤー画像の縦と横のサイズを取得したら、使い捨て
+
+	//プレイヤー画像を指定した分割数、サイズで読み込む
+	LoadDivGraph(PLAYER_HIT_INVINCIBLE_ANIMATION, PLAYER_HIT_INVINCIBLE_ANIMATION_BUNKATU, PLAYER_HIT_INVINCIBLE_ANIMATION_BUNKATU_X, PLAYER_HIT_INVINCIBLE_ANIMATION_BUNKATU_Y, PLAYER_HIT_ANIMATION_Size_W / PLAYER_HIT_INVINCIBLE_ANIMATION_BUNKATU_X, PLAYER_HIT_ANIMATION_Size_H / PLAYER_HIT_INVINCIBLE_ANIMATION_BUNKATU_Y, &p->PLAYER_HIT_ANIMATION_Handle[0]);
+
+
 	WEAPON_Size = LoadGraph(GAME_WEAPON);	//ウエポン画像の縦と横のサイズを取得するためロードする(すぐに捨てる)
 
 	GetGraphSize(WEAPON_Size, &WEAPON_Size_W, &WEAPON_Size_H);	//ウエポン画像の縦と横のサイズを取得
@@ -271,6 +285,26 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			GAME_PLAY_DRAW();	//プレイ画面を描画
 
 			count++;
+
+
+			if (p->PLAYER_INVINCIBLE_flag == true)
+			{
+				if (PLAYER_INVINCIBLE_TIME - (Get_Time - GAME_PLAYER_HIT_TIME) / 1000 >= PLAY_END_TIME)
+				{
+					//アニメーション用カウント
+					p->PLAYER_HIT_ANIMATION_COUNT++;
+					//爆発アニメーション
+					p->PLAYER_HIT_ANIMATION_soeji = (p->PLAYER_HIT_ANIMATION_COUNT / PLAYER_HIT_INVINCIBLE_ANIMATION_FRAME) % PLAYER_HIT_INVINCIBLE_ANIMATION_PATTERN;
+					//爆発アニメーション
+					p->PLAYER_ANIMATION_DRAW((PLAYER_HIT_ANIMATION_Size_W / PLAYER_HIT_INVINCIBLE_ANIMATION_BUNKATU_X / 2) - (PLAYER_Size_W / PLAYER_BUNKATU_X / 2), (PLAYER_HIT_ANIMATION_Size_H / PLAYER_HIT_INVINCIBLE_ANIMATION_BUNKATU_Y / 2) - (PLAYER_Size_H / PLAYER_BUNKATU_Y / 2));
+
+				}
+				else
+				{
+					p->PLAYER_INVINCIBLE_flag = false;
+				}
+
+			}
 			//ウエポンとエネミーを複数生成する
 			for (int w_cnt = 0, e_num = 0; e_num < ENEMY_NUM; w_cnt++, e_num++)
 			{
@@ -372,6 +406,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	delete Difficulty_Level;		//難易度変更クラスの解放
 	delete ClearCondition_Level;	//クラス条件変更クラスの解放
 	delete Background;				//スクロールする背景画像クラスの解放
+	delete bgm;						//bgmクラスの解放
 	for (int w_cnt = 0; w_cnt < WEAPON_NUM; w_cnt++)
 	{
 		delete w[w_cnt];		//WEAPONクラスの解放
@@ -569,10 +604,16 @@ void PLAYER::PLAYER_COLLISION_ENEMY(int ENEMY_X, int ENEMY_Y)
 		{
 			//プレイヤーに触れたエネミーの位置や画像の添え字をリセットする
 			e[e_num]->ENEMY_RESET();
-			
-			//エネミーに触れたらプレイヤーの体力を一つ減らす
-			p->PLAYER_HP -= 1;
+
+			if (PLAYER_INVINCIBLE_flag == false)
+			{
+				//エネミーに触れたらプレイヤーの体力を一つ減らす
+				p->PLAYER_HP -= 1;
+				GAME_PLAYER_HIT_TIME = Get_Time;
+				PLAYER_INVINCIBLE_flag = true;
+			}
 		}
+
 	}
 
 	//DrawFormatString(0, 50, RGB(255, 255, 255), "PLAYER：%d", p->PLAYER_HP);	//プレイヤーの体力を描画する

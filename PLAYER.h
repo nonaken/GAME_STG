@@ -12,6 +12,28 @@
 #define PLAYER_X_HALF 2				//プレイヤーの初期X位置(画面の横幅 / 2)
 #define PLAYER_Y_HALF 2				//プレイヤーの初期Y位置(画面の縦幅 / 2)
 
+#define PLAYER_INVINCIBLE_TIME 1	//プレイヤーの無敵時間
+
+
+#define PLAYER_DOWN_SOEJI 0			//下向きの画像
+#define PLAYER_UP_SOEJI 9			//上向きの画像
+#define PLAYER_LEFT_SOEJI 3			//左向きの画像
+#define PLAYER_RIGHT_SOEJI 6		//右向きの画像
+
+#define PLAYER_HIT_INVINCIBLE_ANIMATION	"ANIMATION\\無敵.png"	//"ANIMATION\\無敵エフェクト2.png"////エネミーの爆発アニメーション画像
+#define PLAYER_HIT_INVINCIBLE_ANIMATION_BUNKATU	12		//エネミー画像の総分割数
+#define PLAYER_HIT_INVINCIBLE_ANIMATION_BUNKATU_X 12	//エネミー画像の横分割数
+#define PLAYER_HIT_INVINCIBLE_ANIMATION_BUNKATU_Y 1	//エネミー画像の縦分割数
+
+#define PLAYER_HIT_INVINCIBLE_ANIMATION_FRAME 5//10			//エネミーアニメーションの描画を切り替えるフレーム数
+#define PLAYER_HIT_INVINCIBLE_ANIMATION_PATTERN 12//3			//エネミーアニメーションの種類
+
+
+#define PLAYER_ANIMATION_FRAME 5			//アニメーションの描画を切り替えるフレーム数
+#define PLAYER_ANIMETION_PATTERN 3			//アニメーションの種類
+
+#define PLAYER_HIT_ANIMATION_MIN_SOEJI 1
+#define PLAYER_HIT_ANIMATION_MAX_SOEJI 12
 
 //プレイヤーのクラス
 class PLAYER{
@@ -27,7 +49,8 @@ public:
 	int PLAYER_Handle[PLAYER_MAX_SOEJI];//プレイヤーのハンドル
 	int FontHandle_PLAYER_HP = 0;		//プレイヤーのHPを描画するフォントハンドル用変数
 
-	bool PLAYER_MOVE_flag = false;
+	bool PLAYER_MOVE_flag = false;		//プレイヤーが動いたか管理するフラグ(同時押しをできなくする)
+	bool PLAYER_INVINCIBLE_flag = false;//プレイヤーが敵に触れたら一定時間無敵タイムにする(スコアは増えない)
 
 	int Get_PLAYER_Speed();				//プレイヤーのスピードを関数で取得
 	int Get_PLAYER_X();					//プレイヤーのX位置を関数で取得
@@ -37,6 +60,11 @@ public:
 	void PLAYER_RESET();				//プレイヤーの初期設定
 	void PLAYER_COLLISION_ENEMY(int ENEMY_X, int ENEMY_Y);		//プレイヤーとエネミーの衝突判定をする関数
 	int PLAYER_COUNT = 0;				//プレイヤーのアニメーション用カウント
+
+	int PLAYER_HIT_ANIMATION_COUNT = 0;
+	int PLAYER_HIT_ANIMATION_soeji = 0;
+	int PLAYER_HIT_ANIMATION_Handle[PLAYER_HIT_ANIMATION_MAX_SOEJI];	//プレイヤーのアニメーション画像の添え字を入れる
+	void PLAYER_ANIMATION_DRAW(int x, int y);
 };
 
 

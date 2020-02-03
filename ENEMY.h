@@ -17,9 +17,9 @@
 #define ENEMY_ANIMATION_BUNKATU	6		//エネミー画像の総分割数
 #define ENEMY_ANIMATION_BUNKATU_X 5//3	//エネミー画像の横分割数
 #define ENEMY_ANIMATION_BUNKATU_Y 2//4	//エネミー画像の縦分割数
-#define ENEMY_ANIMATION_MIN_SOEJI 1		//エネミーの最初の画像
-#define ENEMY_ANIMATION_MAX_SOEJI 5		//エネミーの最後の画像
-#define ENEMY_HIT_TIME				2	//エネミーがウエポンに衝突したら２秒間計測
+#define ENEMY_ANIMATION_MIN_SOEJI 1		//エネミーのアニメーション画像の最初の添え字
+#define ENEMY_ANIMATION_MAX_SOEJI 5		//エネミーのアニメーション画像の最後の添え字
+#define ENEMY_HIT_TIME			  2	//エネミーがウエポンに衝突したら2秒間計測
 
 #define ENEMY_ANIMATION_EXPROSION_FRAME 10			//エネミーアニメーションの描画を切り替えるフレーム数
 #define ENEMY_ANIMATION_EXPROSION_PATTERN 5			//エネミーアニメーションの種類

@@ -4,17 +4,12 @@
 #include "WINDOW_SIZE.h"
 
 
-
-#define PLAYER_DOWN_SOEJI 0			//下向きの画像
-#define PLAYER_UP_SOEJI 9			//上向きの画像
-#define PLAYER_LEFT_SOEJI 3			//左向きの画像
-#define PLAYER_RIGHT_SOEJI 6		//右向きの画像
-
-#define PLAYER_ANIMATION_FRAME 5			//アニメーションの描画を切り替えるフレーム数
-#define PLAYER_ANIMETION_PATTERN 3			//アニメーションの種類
-
 int PLAYER_Size;					//プレイヤーの画像サイズをLoadDivGrahpで取得するため
 int PLAYER_Size_W, PLAYER_Size_H;	//プレイヤー画像の横サイズ、縦サイズを取得
+
+int PLAYER_HIT_ANIMATION_Size;						//プレイヤーの無敵アニメーション画像のサイズをLoadDivGrahpで取得するため	(ENEMY.cppでも同じ変数を利用するため、externを使用している)
+int PLAYER_HIT_ANIMATION_Size_W, PLAYER_HIT_ANIMATION_Size_H;		//プレイヤーの無敵アニメーション画像の横サイズ、縦サイズを取得	(ENEMY.cppでも同じ変数を利用するため、externを使用している)
+
 
 //プレイヤーのスピードを取得する関数
 int PLAYER::Get_PLAYER_Speed()
@@ -163,4 +158,14 @@ void PLAYER::PLAYER_RESET()
 {
 	PLAYER_X = GAME_WIDTH / PLAYER_X_HALF;
 	PLAYER_Y = GAME_HEIGHT / PLAYER_Y_HALF;
+}
+
+
+//エネミーの爆発アニメーションを描画する関数
+void PLAYER::PLAYER_ANIMATION_DRAW(int x, int y)
+{
+	//DrawGraph(Get_ENEMY_X() - ENEMY_ANIMATION_Size_W / ENEMY_ANIMATION_BUNKATU_X / 2, Get_ENEMY_Y() - ENEMY_ANIMATION_Size_H / ENEMY_ANIMATION_BUNKATU_Y / 2, ENEMY_ANIMATION_Handle[ENEMY_ANIMATION_soeji], TRUE);
+
+	DrawGraph(Get_PLAYER_X() - x, Get_PLAYER_Y() - y, PLAYER_HIT_ANIMATION_Handle[PLAYER_HIT_ANIMATION_soeji], TRUE);
+
 }
