@@ -1,19 +1,20 @@
 #pragma once
 #include"PLAYER.h"
 
-#define GAME_WEAPON "WEAPON\\爆弾.png"
-#define WEAPON_BUNKATU	60			//ウエポン画像の総分割数
-#define WEAPON_BUNKATU_X 6//3		//ウエポン画像の横分割数
-#define WEAPON_BUNKATU_Y 10//4		//ウエポン画像の縦分割数
+#define GAME_WEAPON "WEAPON\\おばけ3倍.png"//"WEAPON\\爆弾.png"
+#define WEAPON_BUNKATU	12//60			//ウエポン画像の総分割数
+#define WEAPON_BUNKATU_X 3//6		//ウエポン画像の横分割数
+#define WEAPON_BUNKATU_Y 4//10		//ウエポン画像の縦分割数
 #define WEAPON_MIN_SOEJI 1			//ウエポンの最初の画像
-#define WEAPON_MAX_SOEJI 60			//ウエポンの最後の画像
+#define WEAPON_MAX_SOEJI 12//60			//ウエポンの最後の画像
 
 #define WEAPON_X_HALF 2	//ウエポンのX位置をプレイヤーの画像サイズの半分に設定するためのマクロ定義
 
 #define WEAPON_NUM 3				//画面に表示できるウエポンの数
 
-#define WEAPON_ANIMATION_EXPROSION_FRAME	20
-#define WEAPON_ANIMATION_PATTERN		3
+#define WEAPON_ANIMATION_EXPROSION_FRAME	20	//ウエポンのアニメーション描画フレーム
+#define WEAPON_ANIMATION_PATTERN		3		//ウエポンのアニメーションバターン
+#define WEAPON_NEXT_ATACKSPEED 0.3				//ウエポンの発射時間
 
 
 class WEAPON : public PLAYER

@@ -8,6 +8,8 @@
 #define ClearCondition_Select_SCORE 1	//クリア条件がスコア制のときの値(１：スコア制)
 
 
+#define GAME_CLEAR_SCORE 2000		//ゲームクリアに必要なスコア
+
 //難易度変更用クラス
 class DIFFICULTY
 {
@@ -29,7 +31,7 @@ public:
 class CLEARCONDITION
 {
 public:
-	char ClearCondition_Array[2][32] = { "スコア制[1500獲得]", "タイム制[逃げ切り]" };
+	char ClearCondition_Array[2][32] = { "タイム制[逃げ切り]" , "スコア制[2000以上]"};
  
 	int FontHandle_ClearCondition_SELECT = 0;//クリア条件変更のフォントハンドル用変数
 	void CLEAR_CONDITION_SELECT_DRAW();	//クリア条件変更を描画する関数
@@ -42,4 +44,5 @@ public:
 
 	void CLEAR_CONDITION_SELECT_TITLE();	//プレイ画面でタイムモードか、スコアモードに変更し、値を保持する関数
 	void CLEAR_CONDITION_SELECT_PLAY();		//プレイ画面でタイムモードか、スコアモードに変更した値を基にクリア条件変更を実施する関数
+	void CLEAR_CONDITION_SELECT_PLAYMODE_DRAW();		//プレイ画面でタイムモードかスコアモードが把握できるようにどちらのモードか描画する
 };

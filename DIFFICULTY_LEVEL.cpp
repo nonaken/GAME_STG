@@ -2,8 +2,6 @@
 #include "DIFFICULTY_LEVEL.h"
 #include "Keyboard_Get.h"
 
-
-
 void DIFFICULTY::DIFFICULTY_LEVEL_TITLE()
 {
 	if (Keyboard_Get(KEY_INPUT_UP) == 1 && Lv_Select < Lv_Select_MAX)
@@ -65,4 +63,17 @@ void CLEARCONDITION::CLEAR_CONDITION_SELECT_DRAW()
 void DIFFICULTY::DIFFICULTY_LEVEL_SELECT_DRAW()
 {
 	DrawFormatStringToHandle(100, 400, GetColor(255, 0, 255), FontHandle_LV_SELECT, "難易度：%s", Difficuty_Array[Lv_Select]);	//難易度を描画する関数
+}
+
+//プレイ画面に難易度を描画する関数
+void CLEARCONDITION::CLEAR_CONDITION_SELECT_PLAYMODE_DRAW()
+{
+	if (ScoreMode_Play_flag == true)
+	{
+		DrawFormatStringToHandle(0, 100, GetColor(255, 0, 255), FontHandle_ClearCondition_SELECT, "クリア条件：%s", ClearCondition_Array[ClearCondition_Select]);
+	}
+	if (TimeMode_Play_flag == true)
+	{
+		DrawFormatStringToHandle(0, 100, GetColor(255, 0, 255), FontHandle_ClearCondition_SELECT, "クリア条件：%s", ClearCondition_Array[ClearCondition_Select]);
+	}
 }

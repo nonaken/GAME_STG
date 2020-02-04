@@ -1,9 +1,6 @@
 #pragma once
 #include "ENEMY.h"
 
-#define GAME_CLEAR_SCORE 1500		//ゲームクリアに必要なスコア
-
-
 class SCORE
 {
 public:

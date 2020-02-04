@@ -22,7 +22,7 @@
 #define GAME_TITLE_LOG_BOTTOMLEFT_X		GAME_WIDTH - GAME_WIDTH / 4		//タイトルロゴ画像の右下X座標
 #define GAME_TITLE_LOG_BOTTOMLEFT_Y		GAME_HEIGHT - GAME_HEIGHT / 3	//タイトルロゴ画像の右下Y座標
 
-#define LIMIT_TIME 60 //制限時間 
+#define LIMIT_TIME 30 //制限時間 
 #define PLAY_END_TIME 0 //終了時間
 
 
@@ -89,7 +89,7 @@ int imgBack_Clear = 0;
 //**********************時間を取得する変数**************************
 double GAME_TITLE_ELAPSEDTIME = 0; //プレイ画面に遷移するまでの時間を計測
 double Get_WEAPON_Time = 0;
-double Get_Collision_Time;		//エネミーがウエポンにあたった時間を取得する
+double Get_Collision_Time = 0;		//エネミーがウエポンにあたった時間を取得する
 double Get_Time = 0;			//GetNowCount()用の変数：起動したら時間を計測する
 double GAME_PLAYER_HIT_TIME = 0;//プレイヤーがエネミーに触れたときの時間を取得する変数
 //GetNowCount()は起動してから時間を計測するため、プレイ画面に遷移するまでの掛かった時間を引く必要がある
@@ -101,7 +101,7 @@ int FontHandle_LIMIT = 0;
 int FontHandle_ScreenTransition = 0;
 //**************************************************
 
-int count = 0;
+double ElapsedTime = 0;
 
 // プログラムは WinMain から始まります
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
@@ -209,7 +209,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	p->FontHandle_PLAYER_HP = CreateFontToHandle(NULL, 50, 5);		//文字の大きさ変更
 
 	//難易度変更用のフォントハンドルを作成
-	Difficulty_Level->FontHandle_LV_SELECT = CreateFontToHandle(NULL, 50, 3);	//文字の大きさ変更
+	Difficulty_Level->FontHandle_LV_SELECT = CreateFontToHandle(NULL, 70, 3);	//文字の大きさ変更
 
 	//クリア条件変更用のフォントハンドルを作成
 	ClearCondition_Level->FontHandle_ClearCondition_SELECT = CreateFontToHandle(NULL, 40, 3);	//文字の大きさ変更
@@ -224,11 +224,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	fps->FontHandle_FPS = CreateFontToHandle(NULL, 50, 3); //文字の大きさ変更
 
 
-	//マクロで定義した音楽ファイルをロードし、識別番号をMUSIC_TITLE_Handleに格納する
+	//(タイトルbgm)マクロで定義した音楽ファイルをロードし、識別番号をMUSIC_TITLE_Handleに格納する
 	bgm->MUSIC_TITLE_Handle = LoadSoundMem(TITLE_MUSIC);
 
-	//マクロで定義した音楽ファイルをロードし、識別番号をMUSIC_PLAY_Handleに格納する
+	//(プレイbgm)マクロで定義した音楽ファイルをロードし、識別番号をMUSIC_PLAY_Handleに格納する
 	bgm->MUSIC_PLAY_Handle = LoadSoundMem(PLAY_MUSIC);
+
+	//(プレイヤーとエネミーの衝突音[無敵フラグがfalseのとき])マクロで定義した音楽ファイルをロードし、識別番号をMUSIC_PLAYER_HP_DAMAGE_Handleに格納する
+	bgm->MUSIC_PLAYER_HP_DAMAGE_Handle = LoadSoundMem(PLAYER_HP_DAMAGE_MUSIC);
+
+	//(ウエポンとエネミーの衝突音)マクロで定義した音楽ファイルをロードし、識別番号をMUSIC_COLISION_Handleに格納する
+	bgm->MUSIC_COLISION_Handle = LoadSoundMem(COLISION_MUSIC);
 
 	//マクロで定義した音楽ファイルをロードし、識別番号をMUSIC_GAMEOVER_Handleに格納する
 	bgm->MUSIC_GAMEOVER_Handle = LoadSoundMem(GAMEOVER_MUSIC);
@@ -236,11 +242,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	//マクロで定義した音楽ファイルをロードし、識別番号をMUSIC_GAMECLEAR_Handleに格納する
 	bgm->MUSIC_GAMECLEAR_Handle = LoadSoundMem(GAMECLEAR_MUSIC);
 
-	//マクロで定義した音楽ファイルをロードし、識別番号をMUSIC_COLISION_Handleに格納する
-	bgm->MUSIC_COLISION_Handle = LoadSoundMem(COLISION_MUSIC);
+	
 
 	//タイトル画面でbgmを鳴らす関数
 	bgm->TITLE_BGM();
+	
 
 	//無限ループ
 	while (TRUE)
@@ -270,11 +276,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			p->PLAYER_RESET();	//プレイヤーを初期位置へ
 
 			//w->WEAPON_RESET();	//ウエポンを初期位置へ
-			for (int e_num = 0, w_cnt = 0; e_num < ENEMY_NUM, w_cnt < WEAPON_NUM; e_num++, w_cnt++)
-			{
-				e[e_num]->ENEMY_RESET();
-				w[w_cnt]->WEAPON_RESET();	//ウエポンを初期位置へ
-			}
+			
 
 			s->SCORE_RESET();		//スコアのリセットする関数
 
@@ -284,23 +286,23 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 			GAME_PLAY_DRAW();	//プレイ画面を描画
 
-			count++;
-
-
+			//無敵フラグがtrueのとき
 			if (p->PLAYER_INVINCIBLE_flag == true)
-			{
+			{		//無敵時間中なら
 				if (PLAYER_INVINCIBLE_TIME - (Get_Time - GAME_PLAYER_HIT_TIME) / 1000 >= PLAY_END_TIME)
 				{
 					//アニメーション用カウント
 					p->PLAYER_HIT_ANIMATION_COUNT++;
-					//爆発アニメーション
+					//無敵アニメーションの処理
 					p->PLAYER_HIT_ANIMATION_soeji = (p->PLAYER_HIT_ANIMATION_COUNT / PLAYER_HIT_INVINCIBLE_ANIMATION_FRAME) % PLAYER_HIT_INVINCIBLE_ANIMATION_PATTERN;
-					//爆発アニメーション
+					//無敵アニメーションを描画
 					p->PLAYER_ANIMATION_DRAW((PLAYER_HIT_ANIMATION_Size_W / PLAYER_HIT_INVINCIBLE_ANIMATION_BUNKATU_X / 2) - (PLAYER_Size_W / PLAYER_BUNKATU_X / 2), (PLAYER_HIT_ANIMATION_Size_H / PLAYER_HIT_INVINCIBLE_ANIMATION_BUNKATU_Y / 2) - (PLAYER_Size_H / PLAYER_BUNKATU_Y / 2));
 
 				}
+				//無敵時間中でなければ
 				else
 				{
+					//無敵フラグをfalseにする
 					p->PLAYER_INVINCIBLE_flag = false;
 				}
 
@@ -342,8 +344,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 				//爆弾アニメーション処理
 				w[w_cnt]->WEAPON_soeji = (w[w_cnt]->WEAPON_ANIMATION_COUNT / WEAPON_ANIMATION_EXPROSION_FRAME) % WEAPON_ANIMATION_PATTERN;
 
-				//ウエポンの描画処理
-				w[w_cnt]->WEAPON_DRAW((WEAPON_Size_W / WEAPON_BUNKATU_X / 2) - (PLAYER_Size_W / PLAYER_BUNKATU_X / 2), (WEAPON_Size_H / WEAPON_BUNKATU_Y / 2) - (PLAYER_Size_H / PLAYER_BUNKATU_Y / 2));
+				if (w[w_cnt]->WEAPON_flag_Y == true)
+				{
+					//ウエポンの描画処理
+					w[w_cnt]->WEAPON_DRAW((WEAPON_Size_W / WEAPON_BUNKATU_X / 2) - (PLAYER_Size_W / PLAYER_BUNKATU_X / 2), (WEAPON_Size_H / WEAPON_BUNKATU_Y / 2) - (PLAYER_Size_H / PLAYER_BUNKATU_Y / 2));
+				}
 			}
 
 
@@ -369,12 +374,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 			s->DRAW_TOTAL_SCORE();
 
 			//制限時間の設定
-			DrawFormatStringToHandle(400, 0, GetColor(150, 255, 255), FontHandle_LIMIT, "LIMIT_TIME：%0.3lf秒", (LIMIT_TIME - (Get_Time - GAME_TITLE_ELAPSEDTIME) / 1000));	//文字の大きさ変更);
+			//DrawFormatStringToHandle(400, 0, GetColor(150, 255, 255), FontHandle_LIMIT, "LIMIT_TIME：%0.3lf秒", (LIMIT_TIME - (Get_Time - GAME_TITLE_ELAPSEDTIME) / 1000));	//文字の大きさ変更);
 
-			//DrawFormatStringToHandle(100, 0, GetColor(150, 255, 255), FontHandle_LIMIT, "LIMIT_TIME：%d秒", (Get_Time - GAME_TITLE_ELAPSEDTIME) / 1000);	//文字の大きさ変更);
+			//DrawFormatStringToHandle(100, 0, GetColor(150, 255, 255), FontHandle_LIMIT, "LIMIT_TIME：%0.3lf秒", (Get_Time - GAME_TITLE_ELAPSEDTIME) / 1000);	//文字の大きさ変更);
 
 			//クリア条件の変更
 			DrawExtendGraph(0, 0, GAME_WIDTH, GAME_HEIGHT, ClearCondition_Level->TimeMode_Play_flag, false);
+
+			//クリア条件を描画する関数
+			ClearCondition_Level->CLEAR_CONDITION_SELECT_PLAYMODE_DRAW();
 
 			break;
 
@@ -423,6 +431,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 //タイトル画面を描画する関数
 void GAME_TITLE_DRAW() 
 {
+
+	for (int e_num = 0; e_num < ENEMY_NUM; e_num++)
+	{
+		e[e_num]->ENEMY_RESET();
+	}
+	for (int w_cnt = 0; w_cnt < WEAPON_NUM; w_cnt++)
+	{
+		w[w_cnt]->WEAPON_RESET();
+	}
 	//タイトル画像の背景画像を描画する
 	//DrawExtendGraph(0, 0, GAME_WIDTH, GAME_HEIGHT, imgBack_Title, false);
 
@@ -442,7 +459,7 @@ void GAME_TITLE_DRAW()
 	DrawExtendGraph(GAME_TITLE_LOG_UPPERLEFT_X, GAME_TITLE_LOG_UPPERLEFT_Y, GAME_TITLE_LOG_BOTTOMLEFT_X, GAME_TITLE_LOG_BOTTOMLEFT_Y, imgTitle_log, true);
 
 	//エンター画面へ遷移する条件を描画
-	DrawStringToHandle(0, 0, "タイトル　エンターでプレイ画面へ", RGB(255, 255, 255), FontHandle_ScreenTransition);
+	DrawStringToHandle(0, 0, "タイトル　エンターでプレイ画面へ", RGB(0, 0, 255), FontHandle_ScreenTransition);
 
 	//難易度変更を描画する関数
 	Difficulty_Level->DIFFICULTY_LEVEL_SELECT_DRAW();
@@ -495,8 +512,14 @@ void GAME_PLAY_DRAW()
 	//プレイヤーのHPを描画する関数
 	p->PLAYER_HP_DRAW();
 
+	//制限時間を計測する変数
+	ElapsedTime = (LIMIT_TIME - (Get_Time - GAME_TITLE_ELAPSEDTIME) / 1000);
+
+	//制限時間を描画する関数
+	DrawFormatStringToHandle(400, 0, GetColor(150, 255, 255), FontHandle_LIMIT, "LIMIT_TIME：%0.3lf秒", ElapsedTime);	//文字の大きさ変更);
+
 	//制限時間が0秒になったら(スコアモードのとき)
-	if (LIMIT_TIME - (Get_Time - GAME_TITLE_ELAPSEDTIME) / 1000 <= PLAY_END_TIME && ClearCondition_Level->ScoreMode_Play_flag == true)
+	if (ElapsedTime <= PLAY_END_TIME && ClearCondition_Level->ScoreMode_Play_flag == true)
 	{
 		//ゲームオーバー画面でbgmを鳴らす関数
 		bgm->GAMEOVER_BGM();
@@ -504,12 +527,28 @@ void GAME_PLAY_DRAW()
 	}
 
 	//制限時間が0秒になったら(タイムモードのとき)
-	if (LIMIT_TIME - (Get_Time - GAME_TITLE_ELAPSEDTIME) / 1000 <= PLAY_END_TIME && ClearCondition_Level->TimeMode_Play_flag == true)
+	if (ElapsedTime <= PLAY_END_TIME && ClearCondition_Level->TimeMode_Play_flag == true)
 	{
 		//ゲームオーバー画面でbgmを鳴らす関数
 		bgm->GAMECLEAR_BGM();
 		screen_state = GAME_CLEAR;	//クリア画面へ遷移する
 	}
+
+	////制限時間が0秒になったら(スコアモードのとき)
+	//if (LIMIT_TIME - (Get_Time - GAME_TITLE_ELAPSEDTIME) / 1000 <= PLAY_END_TIME && ClearCondition_Level->ScoreMode_Play_flag == true)
+	//{
+	//	//ゲームオーバー画面でbgmを鳴らす関数
+	//	bgm->GAMEOVER_BGM();
+	//	screen_state = GAME_END;	//エンド画面へ遷移する
+	//}
+
+	////制限時間が0秒になったら(タイムモードのとき)
+	//if (LIMIT_TIME - (Get_Time - GAME_TITLE_ELAPSEDTIME) / 1000 <= PLAY_END_TIME && ClearCondition_Level->TimeMode_Play_flag == true)
+	//{
+	//	//ゲームオーバー画面でbgmを鳴らす関数
+	//	bgm->GAMECLEAR_BGM();
+	//	screen_state = GAME_CLEAR;	//クリア画面へ遷移する
+	//}
 
 	//スペースキーが押されたら
 	if (Keyboard_Get(KEY_INPUT_SPACE) == 1)
@@ -519,8 +558,8 @@ void GAME_PLAY_DRAW()
 		screen_state = GAME_END;		//エンド画面へ遷移する
 	}
 
-	//トータルスコア
-	if (s->total_score >= GAME_CLEAR_SCORE)
+	//トータルスコア(スコアモードのときクリア)
+	if (s->total_score >= GAME_CLEAR_SCORE && ClearCondition_Level->ScoreMode_Play_flag == true)
 	{
 		//ゲームクリア画面でbgmを鳴らす関数
 		bgm->GAMECLEAR_BGM();
@@ -605,11 +644,19 @@ void PLAYER::PLAYER_COLLISION_ENEMY(int ENEMY_X, int ENEMY_Y)
 			//プレイヤーに触れたエネミーの位置や画像の添え字をリセットする
 			e[e_num]->ENEMY_RESET();
 
+			//無敵フラグがfalseのとき
 			if (PLAYER_INVINCIBLE_flag == false)
 			{
-				//エネミーに触れたらプレイヤーの体力を一つ減らす
+				//無敵フラグがfalseのとき、エネミーに触れたら衝突音を鳴らす関数
+				bgm->PLAYER_HP_DAMAGE_BGM();
+
+				//無敵フラグがfalseのとき、エネミーに触れたらプレイヤーの体力を一つ減らす
 				p->PLAYER_HP -= 1;
+
+				//無敵フラグがfalseのとき、エネミーに触れたら時間を取得する
 				GAME_PLAYER_HIT_TIME = Get_Time;
+
+				//一定時間無敵にするため、無敵フラグをtrueにする
 				PLAYER_INVINCIBLE_flag = true;
 			}
 		}
@@ -621,11 +668,6 @@ void PLAYER::PLAYER_COLLISION_ENEMY(int ENEMY_X, int ENEMY_Y)
 	//プレイヤーの体力が0以下なら
 	if (p->PLAYER_HP <= 0)
 	{
-		for (int e_num = 0; e_num < ENEMY_NUM; e_num++)
-		{
-			//プレイヤーに触れたエネミーの位置や画像の添え字をリセットする
-			e[e_num]->ENEMY_RESET();
-		}
 		//ゲームオーバー画面でbgmを鳴らす関数
 		bgm->GAMEOVER_BGM();
 		screen_state = GAME_END;		//エンド画面へ遷移する
@@ -662,20 +704,25 @@ int WEAPON::Get_WEAPON_Y()
 		//WEAPON_Y = Get_PLAYER_Y() - WEAPON_Size_H / WEAPON_BUNKATU_Y;
 	
 		//A キーを押したとき、自動でY座標を加算するためのフラグ
-	if (Keyboard_Get(KEY_INPUT_A) == 1)//&& count % 30 == 0) //)
+	if (Keyboard_Get(KEY_INPUT_A) <= 1)//&& count % 30 == 0) //)
 	{
+		//Aボタンを長押ししたとき時間を取得する
 		Get_WEAPON_Time = Get_Time;
+		/*if (w[1]->WEAPON_flag_Y == false)
+		{
+			w[1]->WEAPON_flag_Y = true;
+		}*/
 	}
 	
 		//ウエポンを操作する　A　キーを押した場合
 	
 	for (int w_cnt = 0; w_cnt < WEAPON_NUM; w_cnt++)
 	{
+		//ウエポンのフラグがfalseのとき
 		if (w[w_cnt]->WEAPON_flag_Y == false)
 		{
-			
-
-			if (0.1 - (Get_Time - Get_WEAPON_Time) / 1000 <= PLAY_END_TIME)
+			//ウエポンの次弾速度
+			if (WEAPON_NEXT_ATACKSPEED - (Get_Time - Get_WEAPON_Time) / 1000 <= PLAY_END_TIME)
 			{
 				w[w_cnt]->WEAPON_flag_X = true;		//A	キーを押したとき、プレイヤーのX座標を取得するためのフラグ
 				w[w_cnt]->WEAPON_flag_Y = true;		//A キーを押したとき、自動でY座標を加算するためのフラグ
@@ -683,11 +730,13 @@ int WEAPON::Get_WEAPON_Y()
 				w[w_cnt]->WEAPON_Y = p->PLAYER_Y;*/
 
 				Get_WEAPON_Time = Get_Time;
+
 				//w[w_cnt]->WEAPON_Next_flag = true;
 
 			}
 		}
-	}
+	//}
+	
 
 	//A キーを押したとき、自動でY座標を加算するためのフラグ
 	//if (w[0]->WEAPON_flag_Y == true)
@@ -706,8 +755,8 @@ int WEAPON::Get_WEAPON_Y()
 	}*/
 
 
-	for (int w_cnt = 0; w_cnt < WEAPON_NUM; w_cnt++)
-	{
+	/*for (int w_cnt = 0; w_cnt < WEAPON_NUM; w_cnt++)
+	{*/
 		if (w[w_cnt]->WEAPON_flag_Y == false)
 		{
 			w[w_cnt]->WEAPON_Y = p->PLAYER_Y;		//ウエポンのYフラグがfalseのとき、ウエポンのY座標をプレイヤーのY座標と同じにする
@@ -725,7 +774,7 @@ int WEAPON::Get_WEAPON_Y()
 			w[w_cnt]->WEAPON_X = p->PLAYER_X;
 
 			///ウエポンのXフラグをfalseに変更する
-			w[w_cnt]->WEAPON_flag_X = false;
+			//w[w_cnt]->WEAPON_flag_X = false;
 		}
 
 		//ウエポン画像のY座標が画面外(0よりも低い値)に到達したとき //描画処理でずらしたY座標を調整
@@ -789,13 +838,16 @@ void WEAPON::WEAPON_COLLISION_ENEMY(int ENEMY_X, int ENEMY_Y)
 					//プレイ画面で敵とウエポンが衝突したときの音楽を鳴らす関数
 					bgm->PLAY_COLISION_BGM();
 
+					//ウエポンがエネミーに衝突したときエネミーの位置をリセットする
 					e[e_num]->ENEMY_RESET();
 
 					w[w_cnt]->WEAPON_flag_X = false;		//A	キーを押したとき、プレイヤーのX座標を取得するためのフラグ
 					w[w_cnt]->WEAPON_flag_Y = false;		//A キーを押したとき、自動でY座標を加算するためのフラグ
 
+					//エネミーのアニメーション用のフラグ
 					e[e_num]->ENEMY_EXPROSION_flag = true;
 					
+					//ウエポンとエネミーが衝突した時間を取得する
 					Get_Collision_Time = Get_Time;
 					
 					//ウエポンのY座標をプレイヤーのY座標から、ウエポン画像サイズから分割し、引いた値にする
@@ -890,3 +942,5 @@ void CLEARCONDITION::CLEAR_CONDITION_SELECT_PLAY()
 		screen_state = GAME_PLAY;		//シーンをゲーム画面に変更
 	}
 }
+
+

@@ -2,7 +2,7 @@
 
 #include"WINDOW_SIZE.h"
 
-#define GAME_PLAYER "animals\\プレイヤー2倍.png"//"animals\\$yaksaddle.png"//"PLAYER\\player_縮小.png"
+#define GAME_PLAYER "animals\\魔王猫3倍.png"//"animals\\$yaksaddle.png"//"PLAYER\\player_縮小.png"
 #define PLAYER_BUNKATU	12			//プレイヤー画像の総分割数
 #define PLAYER_BUNKATU_X 3//3		//プレイヤー画像の横分割数
 #define PLAYER_BUNKATU_Y 4//4		//プレイヤー画像の縦分割数
@@ -20,20 +20,20 @@
 #define PLAYER_LEFT_SOEJI 3			//左向きの画像
 #define PLAYER_RIGHT_SOEJI 6		//右向きの画像
 
-#define PLAYER_HIT_INVINCIBLE_ANIMATION	"ANIMATION\\無敵.png"	//"ANIMATION\\無敵エフェクト2.png"////エネミーの爆発アニメーション画像
-#define PLAYER_HIT_INVINCIBLE_ANIMATION_BUNKATU	12		//エネミー画像の総分割数
-#define PLAYER_HIT_INVINCIBLE_ANIMATION_BUNKATU_X 12	//エネミー画像の横分割数
-#define PLAYER_HIT_INVINCIBLE_ANIMATION_BUNKATU_Y 1	//エネミー画像の縦分割数
+#define PLAYER_HIT_INVINCIBLE_ANIMATION	"ANIMATION\\無敵.png"	//"ANIMATION\\無敵エフェクト2.png"//プレイヤーの無敵アニメーション画像
+#define PLAYER_HIT_INVINCIBLE_ANIMATION_BUNKATU	12				//プレイヤーの無敵アニメーション画像の総分割数
+#define PLAYER_HIT_INVINCIBLE_ANIMATION_BUNKATU_X 12			//プレイヤーの無敵アニメーション画像の横分割数
+#define PLAYER_HIT_INVINCIBLE_ANIMATION_BUNKATU_Y 1				//プレイヤーの無敵アニメーション画像の縦分割数
 
-#define PLAYER_HIT_INVINCIBLE_ANIMATION_FRAME 5//10			//エネミーアニメーションの描画を切り替えるフレーム数
-#define PLAYER_HIT_INVINCIBLE_ANIMATION_PATTERN 12//3			//エネミーアニメーションの種類
+#define PLAYER_HIT_INVINCIBLE_ANIMATION_FRAME 5//10				//プレイヤーの無敵アニメーションの描画を切り替えるフレーム数
+#define PLAYER_HIT_INVINCIBLE_ANIMATION_PATTERN 12//3			//プレイヤーの無敵アニメーションの種類
 
 
-#define PLAYER_ANIMATION_FRAME 5			//アニメーションの描画を切り替えるフレーム数
-#define PLAYER_ANIMETION_PATTERN 3			//アニメーションの種類
+#define PLAYER_ANIMATION_FRAME 5				//プレイヤーの無敵アニメーション描画を切り替えるフレーム数
+#define PLAYER_ANIMETION_PATTERN 3				//プレイヤーの無敵アニメーション種類
 
-#define PLAYER_HIT_ANIMATION_MIN_SOEJI 1
-#define PLAYER_HIT_ANIMATION_MAX_SOEJI 12
+#define PLAYER_HIT_ANIMATION_MIN_SOEJI 1		//プレイヤーの無敵アニメーションの最小値
+#define PLAYER_HIT_ANIMATION_MAX_SOEJI 12		//プレイヤーの無敵アニメーションの最大値
 
 //プレイヤーのクラス
 class PLAYER{
